@@ -2,230 +2,439 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SecureAgent v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+/* ── 라이트 모드 (기본) ── */
 :root{
-  --ink:#0A1628;--ink2:#162035;--ink3:#1E2E47;
+  --ink:#0A1628;--ink2:#111E33;--ink3:#1A2D47;
   --blue:#2563EB;--blue2:#1D4ED8;--bluebg:#EFF6FF;--bluebd:#BFDBFE;
   --green:#059669;--greenbg:#ECFDF5;--greenbd:#A7F3D0;
   --amber:#D97706;--amberbg:#FFFBEB;--amberbd:#FDE68A;
   --red:#DC2626;--redbg:#FEF2F2;--redbd:#FECACA;
   --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
-  --g400:#94A3B8;--g500:#64748B;--g600:#475569;--g700:#334155;--g800:#1E293B;--g900:#0F172A;
+  --g400:#94A3B8;--g500:#64748B;--g600:#475569;--g700:#334155;--g800:#1E293B;
+  /* 테마 변수 */
+  --bg-page:#E8EEF7;
+  --bg-card:#ffffff;--bg-card2:#F8FAFC;
+  --border:#E2E8F0;--border2:#F1F5F9;
+  --txt-primary:#1E293B;--txt-sub:#475569;--txt-muted:#94A3B8;
+  --q-panel-bg:#ffffff;--q-item-hover:#EFF6FF;--q-item-color:#475569;
+  --input-bar-bg:#ffffff;--input-box-bg:#F8FAFC;
+  --pipe-bg:#111E33;
+  --report-hdr:#F8FAFC;
+  --proc-toggle:#F8FAFC;--proc-toggle-hover:#F1F5F9;
+  --hint-color:#94A3B8;
+}
+/* ── 다크 모드 ── */
+[data-theme="dark"]{
+  --bg-page:#0A1628;
+  --bg-card:#111E33;--bg-card2:#1A2D47;
+  --border:#1E3A5F;--border2:#1A2D47;
+  --txt-primary:#E2E8F0;--txt-sub:#94A3B8;--txt-muted:#64748B;
+  --q-panel-bg:#111E33;--q-item-hover:rgba(37,99,235,.15);--q-item-color:#94A3B8;
+  --input-bar-bg:#111E33;--input-box-bg:rgba(255,255,255,.04);
+  --pipe-bg:#070F1E;
+  --report-hdr:#1A2D47;
+  --proc-toggle:#1A2D47;--proc-toggle-hover:#1E3A5F;
+  --hint-color:#64748B;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:#E8EEF7;color:var(--g800);min-height:100vh;font-size:14px;line-height:1.6;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(--txt-primary);transition:background .25s,color .2s;height:100vh;overflow:hidden;font-size:14px;line-height:1.6;}
 
-/* HEADER */
-.hdr{background:var(--ink);height:52px;display:flex;align-items:center;padding:0 28px;justify-content:space-between;position:sticky;top:0;z-index:400;box-shadow:0 2px 16px rgba(0,0,0,.4);}
-.hdr-l{display:flex;align-items:center;gap:10px;}
-.hdr-mark{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;}
-.hdr-mark svg{width:15px;height:15px;fill:white;}
+/* ── API 키 모달 ── */
+.key-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:2000;display:flex;align-items:center;justify-content:center;}
+.key-overlay.hidden{display:none;}
+.key-modal{background:var(--ink2);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:36px;width:440px;max-width:92vw;box-shadow:0 32px 80px rgba(0,0,0,.6);}
+.key-modal-ico{width:48px;height:48px;background:linear-gradient(135deg,var(--blue),#7C3AED);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.key-modal-ico svg{width:24px;height:24px;stroke:white;fill:none;stroke-width:1.8;}
+.key-modal-t{font-size:18px;font-weight:800;color:white;margin-bottom:8px;}
+.key-modal-d{font-size:13px;color:rgba(255,255,255,.4);line-height:1.7;margin-bottom:24px;}
+.key-input-wrap{position:relative;margin-bottom:14px;}
+.key-input{width:100%;padding:12px 46px 12px 16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:9px;color:white;font-size:13px;font-family:monospace;outline:none;transition:border-color .15s;}
+.key-input:focus{border-color:var(--blue);}
+.key-input::placeholder{color:rgba(255,255,255,.2);}
+.key-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,.3);font-size:16px;user-select:none;}
+.key-save-btn{width:100%;padding:13px;background:var(--blue);border:none;border-radius:9px;color:white;font-size:14px;font-weight:700;cursor:pointer;transition:background .13s;font-family:inherit;}
+.key-save-btn:hover{background:var(--blue2);}
+.key-saved-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:8px;}
+.key-saved-txt{font-size:12px;color:#34D399;font-weight:600;}
+.key-change-btn{font-size:11px;color:rgba(255,255,255,.35);background:none;border:none;cursor:pointer;font-family:inherit;}
+.key-change-btn:hover{color:white;}
+
+/* ── 페이지 ── */
+.page{display:none;height:100vh;}
+.page.active{display:flex;flex-direction:column;height:100vh;}
+
+/* ════ MAIN 페이지 ════ */
+#pagMain{background:var(--main-bg);transition:background .25s;position:relative;overflow-y:auto;align-items:center;justify-content:center;flex:1;}
+#pagMain::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--main-grid) 1px,transparent 1px),linear-gradient(90deg,var(--main-grid) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 20%,transparent 100%);}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;}
+.glow1{width:600px;height:600px;background:rgba(37,99,235,.13);top:-150px;left:-150px;}
+.glow2{width:450px;height:450px;background:rgba(124,58,237,.1);bottom:-100px;right:-100px;}
+.glow3{width:350px;height:350px;background:rgba(34,211,165,.07);top:35%;left:55%;}
+.main-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:60px 24px 50px;width:100%;max-width:800px;}
+
+.main-logo{display:flex;align-items:center;gap:12px;margin-bottom:52px;}
+.logo-mark{width:54px;height:54px;background:linear-gradient(135deg,var(--blue),#7C3AED);border-radius:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(37,99,235,.45);}
+.logo-mark svg{width:28px;height:28px;fill:white;}
+.logo-name{font-size:30px;font-weight:900;color:var(--logo-name-c);letter-spacing:-1px;}
+.logo-ver{font-size:11px;font-weight:700;color:var(--logo-ver-color);background:var(--logo-ver-bg);border:1px solid var(--logo-ver-border);padding:3px 8px;border-radius:4px;align-self:flex-end;margin-bottom:5px;}
+
+.main-headline{font-size:clamp(26px,4.5vw,50px);font-weight:900;color:var(--main-headline);text-align:center;line-height:1.15;letter-spacing:-1.5px;margin-bottom:14px;}
+.hl{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.main-sub{font-size:15px;color:var(--main-sub);text-align:center;line-height:1.8;margin-bottom:44px;max-width:520px;}
+
+.main-search{width:100%;max-width:620px;margin-bottom:20px;}
+.search-box{display:flex;align-items:center;background:var(--search-bg);border:1.5px solid var(--search-border);border-radius:14px;padding:7px 7px 7px 20px;gap:10px;transition:border-color .15s;backdrop-filter:blur(12px);}
+.search-box:focus-within{border-color:rgba(37,99,235,.6);box-shadow:0 0 0 4px rgba(37,99,235,.12);}
+.search-box svg{width:19px;height:19px;stroke:var(--search-icon-c);fill:none;flex-shrink:0;}
+.search-inp{flex:1;background:none;border:none;outline:none;color:var(--search-color);font-size:15px;font-family:inherit;padding:8px 0;}
+.search-inp::placeholder{color:var(--search-ph);}
+.search-btn{padding:11px 24px;background:var(--blue);border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .13s;white-space:nowrap;}
+.search-btn:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,99,235,.4);}
+
+.chips-label{font-size:11px;font-weight:700;color:var(--chips-lbl);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.main-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;max-width:680px;}
+.main-chip{padding:6px 15px;background:var(--chip-bg);border:1px solid var(--chip-border);border-radius:20px;font-size:12px;color:var(--chip-color);cursor:pointer;transition:all .13s;}
+.main-chip:hover{background:rgba(37,99,235,.2);border-color:rgba(37,99,235,.45);color:white;}
+
+.main-feats{display:flex;gap:28px;margin-top:52px;flex-wrap:wrap;justify-content:center;}
+.feat{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--feat-color);}
+.feat-dot{width:6px;height:6px;border-radius:50%;}
+.fd-blue{background:#60A5FA;}.fd-green{background:#34D399;}.fd-purple{background:#A78BFA;}
+
+/* ════ ANALYSIS 페이지 ════ */
+#pagAnalysis{
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+  background:var(--bg-page);
+}
+.hdr{
+  background:var(--ink);
+  height:54px;
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  padding:0 20px;
+  justify-content:space-between;
+  z-index:400;
+  box-shadow:0 2px 20px rgba(0,0,0,.4);
+  flex-shrink:0;
+}
+.hdr-l{display:flex;align-items:center;gap:9px;}
+.hdr-back{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;}
+.hdr-back:hover{background:rgba(255,255,255,.12);}
+.hdr-back svg{width:14px;height:14px;stroke:rgba(255,255,255,.6);fill:none;stroke-width:2.5;}
+.hdr-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--blue),#7C3AED);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.hdr-mark svg{width:14px;height:14px;fill:white;}
 .hdr-name{font-size:15px;font-weight:800;color:white;letter-spacing:-.3px;}
-.hdr-ver{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:2px 6px;border-radius:3px;}
-.hdr-r{display:flex;align-items:center;gap:14px;}
-.hdr-online{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.4);}
-.hdr-dot{width:6px;height:6px;border-radius:50%;background:#22D3A5;box-shadow:0 0 6px rgba(34,211,165,.5);}
+.hdr-ver{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:2px 6px;border-radius:3px;}
+.hdr-r{display:flex;align-items:center;gap:10px;}
+.hdr-key-btn{padding:5px 13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:rgba(255,255,255,.45);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s;font-family:inherit;}
+.hdr-key-btn:hover{background:rgba(255,255,255,.1);color:white;}
+.hdr-key-btn.set{border-color:rgba(52,211,153,.35);color:#34D399;background:rgba(52,211,153,.07);}
+.hdr-online{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.3);}
+.hdr-dot{width:5px;height:5px;border-radius:50%;background:#22D3A5;box-shadow:0 0 6px rgba(34,211,165,.5);}
 
-/* LAYOUT */
-.main{max-width:1160px;margin:0 auto;padding:22px 28px;display:flex;flex-direction:column;gap:14px;}
+/* 헤더 아래 나머지 영역 — 왼쪽패널 + 오른쪽콘텐츠 */
+.analysis-layout{
+  display:flex;
+  flex:1;
+  overflow:hidden;
+  min-height:0;
+  height:calc(100vh - 54px);
+}
 
-/* SURFACE */
-.surface{background:#fff;border-radius:10px;border:1px solid var(--g200);box-shadow:0 1px 3px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.03);overflow:hidden;}
-.surface-hdr{padding:11px 18px;background:var(--g50);border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between;}
-.surface-ttl{font-size:10px;font-weight:800;color:var(--g500);text-transform:uppercase;letter-spacing:1px;}
-.surface-sub{font-size:12px;color:var(--g400);}
+/* 왼쪽 질문 패널 — 전체 높이, 내부만 스크롤 */
+.q-panel{
+  width:270px;
+  flex-shrink:0;
+  background:var(--q-panel-bg);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  transition:background .25s;
+  position:relative;
+  z-index:10;
+}
+.q-panel-hdr{padding:14px 14px 10px;border-bottom:1px solid var(--border2);background:var(--q-panel-bg);flex-shrink:0;}
+.q-panel-ttl{font-size:10px;font-weight:800;color:var(--txt-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.q-search{display:flex;align-items:center;gap:7px;padding:7px 11px;background:var(--input-box-bg);border:1.5px solid var(--border);border-radius:8px;transition:border-color .13s;}
+.q-search:focus-within{border-color:var(--bluebd);}
+.q-search svg{width:12px;height:12px;stroke:var(--g400);fill:none;flex-shrink:0;}
+.q-search-inp{flex:1;background:none;border:none;outline:none;font-size:12px;color:var(--txt-primary);font-family:inherit;}
+.q-search-inp::placeholder{color:var(--g400);}
+.q-list{flex:1;overflow-y:auto;padding:8px;}
+.q-item{padding:8px 10px;border-radius:7px;font-size:12px;font-weight:500;color:var(--q-item-color);cursor:pointer;transition:all .12s;margin-bottom:2px;line-height:1.4;}
+.q-item:hover{background:var(--q-item-hover);color:var(--blue);}
+.q-item.active{background:var(--blue);color:white;font-weight:700;}
 
-/* CHIPS */
-.chips-area{padding:12px 18px;display:flex;flex-wrap:wrap;gap:7px;}
-.chip{padding:5px 13px;background:#fff;border:1.5px solid var(--g200);border-radius:5px;font-size:13px;font-weight:500;color:var(--g600);cursor:pointer;user-select:none;transition:all .13s;}
-.chip:hover{background:var(--bluebg);border-color:var(--bluebd);color:var(--blue);transform:translateY(-1px);}
-.chip.active{background:var(--blue);border-color:var(--blue2);color:#fff;font-weight:700;box-shadow:0 3px 10px rgba(37,99,235,.3);transform:translateY(-1px);}
+/* 오른쪽 콘텐츠 — 파이프라인(고정) + 채팅(스크롤) + 입력창(고정) */
+.main-content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  height:100%;
+}
 
-/* PIPELINE */
-.pipe{display:flex;align-items:center;gap:4px;padding:8px 18px;background:var(--ink2);border-bottom:1px solid rgba(255,255,255,.04);}
-.ps{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;color:rgba(255,255,255,.25);border:1px solid transparent;transition:all .18s;}
-.ps .pd{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.15);flex-shrink:0;}
+/* 파이프라인 — 고정 */
+.pipe{display:flex;align-items:center;gap:4px;padding:7px 16px;background:var(--pipe-bg);flex-shrink:0;transition:background .25s;}
+.ps{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;color:rgba(255,255,255,.2);border:1px solid transparent;transition:all .18s;}
+.ps .pd{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.1);flex-shrink:0;}
 .ps.active{color:#fff;background:rgba(37,99,235,.3);border-color:rgba(37,99,235,.5);}
 .ps.active .pd{background:var(--blue);box-shadow:0 0 5px var(--blue);}
 .ps.done{color:#6EE7B7;}.ps.done .pd{background:#22D3A5;}
-.pa{color:rgba(255,255,255,.12);font-size:10px;}
+.pa{color:rgba(255,255,255,.1);font-size:10px;}
 
-/* STATES */
-.state-empty,.state-error{padding:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;gap:12px;}
-.state-error{display:none;}
-.empty-ico{width:48px;height:48px;background:linear-gradient(135deg,var(--ink),var(--ink3));border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.2);}
-.empty-ico svg{width:22px;height:22px;stroke:rgba(255,255,255,.5);fill:none;}
-.empty-t{font-size:14px;font-weight:700;color:var(--g500);}
-.empty-d{font-size:12px;color:var(--g400);text-align:center;line-height:1.8;}
-.err-txt{font-size:13px;color:var(--red);font-weight:500;background:var(--redbg);padding:12px 16px;border-radius:6px;border:1px solid var(--redbd);}
-.state-loading{display:none;flex-direction:column;min-height:340px;background:var(--ink);}
-.mask-viz-header{padding:12px 18px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;}
-.mask-viz-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:7px;}
-.mask-viz-blink{width:6px;height:6px;border-radius:50%;background:#22D3A5;animation:blink 1s ease-in-out infinite;}
+/* 대화 — 남은 공간 채우기 + 스크롤 */
+.chat-area{flex:1;overflow-y:auto;padding:18px 20px 16px;display:block;min-height:0;}
+.chat-area > *{margin-bottom:14px;}
+.chat-area > *:last-child{margin-bottom:0;}
+.chat-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 24px;width:100%;}
+.chat-empty-ico{width:54px;height:54px;background:linear-gradient(135deg,var(--ink),var(--ink3));border-radius:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.12);}
+.chat-empty-ico svg{width:25px;height:25px;stroke:rgba(255,255,255,.35);fill:none;}
+.chat-empty-t{font-size:15px;font-weight:700;color:var(--txt-muted);}
+.chat-empty-d{font-size:12px;color:var(--txt-muted);text-align:center;line-height:1.8;}
+
+/* 터미널 */
+.terminal-box{background:var(--ink);border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.06);}
+.terminal-hdr{padding:10px 15px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;}
+.terminal-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.6px;}
+.t-blink{width:6px;height:6px;border-radius:50%;background:#22D3A5;animation:blink 1s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-.mask-viz-phase{font-size:11px;font-weight:700;color:rgba(255,255,255,.3);}
-.mask-viz-phase span{color:#60A5FA;}
-.mask-viz-body{flex:1;padding:14px 18px;overflow:hidden;display:flex;flex-direction:column;gap:2px;min-height:220px;}
-.mask-line{font-size:12px;font-family:'Courier New',monospace;line-height:1.75;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;white-space:pre-wrap;word-break:break-all;}
+.terminal-phase{font-size:11px;color:rgba(255,255,255,.28);}
+.terminal-phase b{color:#60A5FA;font-weight:700;}
+.terminal-body{padding:12px 15px;min-height:120px;display:flex;flex-direction:column;gap:2px;max-height:260px;overflow-y:auto;}
+.mask-line{font-size:12px;font-family:'Courier New',monospace;line-height:1.7;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s;white-space:pre-wrap;word-break:break-all;}
 .mask-line.show{opacity:1;transform:translateY(0);}
-.t-co{color:#34D399;font-weight:700;background:rgba(52,211,153,.15);padding:1px 5px;border-radius:3px;}
-.t-ac{color:#60A5FA;font-weight:700;background:rgba(96,165,250,.15);padding:1px 5px;border-radius:3px;}
-.t-ca{color:#FBBF24;font-weight:700;background:rgba(251,191,36,.15);padding:1px 5px;border-radius:3px;}
-.t-pl{color:rgba(255,255,255,.5);}
+.t-co{color:#34D399;font-weight:700;background:rgba(52,211,153,.1);padding:1px 5px;border-radius:3px;}
+.t-ac{color:#60A5FA;font-weight:700;background:rgba(96,165,250,.1);padding:1px 5px;border-radius:3px;}
+.t-ca{color:#FBBF24;font-weight:700;background:rgba(251,191,36,.1);padding:1px 5px;border-radius:3px;}
+.t-pl{color:rgba(255,255,255,.45);}
 .t-real{color:#F0FDF4;font-weight:700;font-family:'Courier New',monospace;}
-.t-arrow{color:rgba(255,255,255,.3);}
-.t-sep{color:rgba(255,255,255,.12);letter-spacing:1px;}
+.t-arrow{color:rgba(255,255,255,.2);}
+.t-sep{color:rgba(255,255,255,.08);}
 .t-send{color:#60A5FA;font-weight:600;}
 .t-recv{color:#34D399;font-weight:600;}
 .t-done{color:#22D3A5;font-weight:700;}
-.mask-viz-footer{padding:10px 18px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px;}
+.terminal-footer{padding:8px 15px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:12px;}
 .mask-stat{display:flex;align-items:center;gap:5px;font-size:11px;}
-.msd{width:7px;height:7px;border-radius:50%;}.msd.co{background:#34D399;}.msd.ac{background:#60A5FA;}.msd.ca{background:#FBBF24;}
-.msv{font-weight:800;color:white;min-width:18px;}.msl{color:rgba(255,255,255,.35);}
-.mask-wait{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:11px;color:rgba(255,255,255,.3);}
+.msd{width:6px;height:6px;border-radius:50%;}.msd.co{background:#34D399;}.msd.ac{background:#60A5FA;}.msd.ca{background:#FBBF24;}
+.msv{font-weight:800;color:white;min-width:16px;}.msl{color:rgba(255,255,255,.28);}
+.mask-wait{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11px;color:rgba(255,255,255,.22);}
 .mask-dots span{display:inline-block;animation:dp 1.2s ease-in-out infinite;}
 .mask-dots span:nth-child(2){animation-delay:.2s;}.mask-dots span:nth-child(3){animation-delay:.4s;}
 @keyframes dp{0%,80%,100%{opacity:.2;}40%{opacity:1;}}
 
-/* RESULT (항상 DOM에 존재, visibility로 제어) */
-.result-area{display:none;}
+/* 말풍선 */
+.chat-q{display:block;margin-left:auto;max-width:70%;background:var(--blue);color:white;padding:10px 15px;border-radius:14px 14px 4px 14px;font-size:13px;font-weight:500;line-height:1.6;}
+.chat-q.followup{background:var(--ink3);border:1px solid rgba(255,255,255,.08);}
 
-/* 질문 메타 */
-.res-meta{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--g50);border-bottom:1px solid var(--g100);}
-.res-q-lbl{font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px;}
-.res-q-txt{font-size:16px;font-weight:800;color:var(--g900);letter-spacing:-.3px;}
-.mtags{display:flex;gap:5px;flex-wrap:wrap;}
-.mtag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;border:1px solid;}
-.mtag.co{background:var(--greenbg);color:var(--green);border-color:var(--greenbd);}
-.mtag.ac{background:var(--bluebg);color:var(--blue);border-color:var(--bluebd);}
-.mtag.ca{background:var(--amberbg);color:var(--amber);border-color:var(--amberbd);}
+/* 의도 뱃지 */
+.intent-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;margin:2px 0 4px;}
+.intent-badge.reuse{background:var(--greenbg);color:var(--green);border:1px solid var(--greenbd);}
+.intent-badge.refetch{background:var(--amberbg);color:var(--amber);border:1px solid var(--amberbd);}
 
-/* AI REPORT */
-.report-body{padding:20px 18px;}
-.ai-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--g200);}
-.ai-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.ai-mark svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:1.8;}
-.ai-name{font-size:13px;font-weight:700;color:var(--g800);}
-.ai-sub{font-size:11px;color:var(--g400);margin-top:1px;}
-.ai-ts{margin-left:auto;font-size:11px;color:var(--g400);text-align:right;line-height:1.5;}
+/* 리포트 카드 */
+.report-card{background:var(--bg-card);border-radius:10px;border:1px solid var(--border);transition:background .25s;box-shadow:0 1px 4px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03);overflow:hidden;}
+.report-hdr{display:flex;align-items:center;gap:10px;padding:11px 15px;background:var(--report-hdr);border-bottom:1px solid var(--border2);transition:background .25s;}
+.ai-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--blue),#7C3AED);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ai-mark svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:1.8;}
+.ai-name{font-size:12px;font-weight:700;color:var(--txt-primary);}
+.ai-sub{font-size:10px;color:var(--txt-muted);}
+.ai-ts{margin-left:auto;font-size:10px;color:var(--txt-muted);text-align:right;}
+.report-tags{display:flex;gap:5px;padding:7px 15px;border-bottom:1px solid var(--border2);flex-wrap:wrap;}
+.rtag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;border:1px solid;}
+.rtag.co{background:var(--greenbg);color:var(--green);border-color:var(--greenbd);}
+.rtag.ac{background:var(--bluebg);color:var(--blue);border-color:var(--bluebd);}
+.rtag.ca{background:var(--amberbg);color:var(--amber);border-color:var(--amberbd);}
+.report-body{padding:15px;}
 
 /* 마크다운 */
-.report-content{font-size:14px;line-height:1.9;color:var(--g700);}
-.report-content h1{font-size:15px;font-weight:800;color:#fff;margin:20px 0 10px;padding:9px 14px;background:var(--ink);border-radius:6px;}
-.report-content h2{font-size:12px;font-weight:800;color:var(--blue);margin:16px 0 8px;padding:6px 12px 6px 14px;background:var(--bluebg);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;text-transform:uppercase;letter-spacing:.3px;}
-.report-content h3{font-size:13px;font-weight:700;color:var(--g700);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px dashed var(--g200);}
-.report-content h1:first-child,.report-content h2:first-child,.report-content h3:first-child{margin-top:0;}
-.report-content p{margin-bottom:10px;}.report-content p:last-child{margin-bottom:0;}
-.report-content strong{color:var(--g900);font-weight:800;}
-.report-content em{color:var(--blue);font-style:normal;font-weight:600;}
-.report-content ul,.report-content ol{padding-left:20px;margin:8px 0 12px;}
-.report-content li{margin-bottom:5px;}
-.report-content hr{border:none;border-top:1px solid var(--g200);margin:16px 0;}
-.report-content blockquote{border-left:3px solid var(--blue);margin:12px 0;padding:10px 16px;background:var(--bluebg);border-radius:0 5px 5px 0;color:var(--g600);font-size:13px;}
-.tbl-outer{overflow-x:auto;margin:14px 0;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--g200);}
-.report-content table{width:100%;border-collapse:collapse;font-size:13px;}
-.report-content thead{background:var(--ink);}
-.report-content thead th{color:rgba(255,255,255,.8);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px 13px;text-align:left;border:none;white-space:nowrap;}
-.report-content tbody tr{border-bottom:1px solid var(--g100);transition:background .1s;}
-.report-content tbody tr:last-child{border-bottom:none;}
-.report-content tbody tr:hover td{background:var(--bluebg);}
-.report-content tbody td{padding:8px 13px;color:var(--g700);border:none;}
-.report-content tbody tr:nth-child(even) td{background:var(--g50);}
+.md-content{font-size:13px;line-height:1.9;color:var(--txt-sub);}
+.md-content h1{font-size:13px;font-weight:800;color:#fff;margin:16px 0 9px;padding:7px 13px;background:var(--ink);border-radius:6px;}
+.md-content h2{font-size:11px;font-weight:800;color:var(--blue);margin:13px 0 7px;padding:4px 12px 4px 13px;background:var(--bluebg);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;text-transform:uppercase;letter-spacing:.3px;}
+.md-content h3{font-size:12px;font-weight:700;color:var(--g700);margin:10px 0 5px;padding-bottom:4px;border-bottom:1px dashed var(--g200);}
+.md-content h1:first-child,.md-content h2:first-child,.md-content h3:first-child{margin-top:0;}
+.md-content p{margin-bottom:8px;}.md-content p:last-child{margin-bottom:0;}
+.md-content strong{color:var(--txt-primary);font-weight:800;}
+.md-content em{color:var(--blue);font-style:normal;font-weight:600;}
+.md-content ul,.md-content ol{padding-left:17px;margin:6px 0 9px;}
+.md-content li{margin-bottom:3px;}
+.md-content hr{border:none;border-top:1px solid var(--g200);margin:12px 0;}
+.md-content blockquote{border-left:3px solid var(--blue);margin:8px 0;padding:8px 13px;background:var(--bluebg);border-radius:0 5px 5px 0;color:var(--g600);font-size:12px;}
+.tbl-wrap{overflow-x:auto;margin:10px 0;border-radius:7px;box-shadow:0 1px 5px rgba(0,0,0,.04);border:1px solid var(--g200);}
+.md-content table{width:100%;border-collapse:collapse;font-size:12px;}
+.md-content thead{background:var(--ink);}
+.md-content thead th{color:rgba(255,255,255,.65);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:7px 11px;text-align:left;border:none;white-space:nowrap;}
+.md-content tbody tr{border-bottom:1px solid var(--g100);}
+.md-content tbody tr:last-child{border-bottom:none;}
+.md-content tbody tr:hover td{background:var(--bluebg);}
+.md-content tbody td{padding:6px 11px;color:var(--txt-sub);border:none;}
+.md-content tbody tr:nth-child(even) td{background:var(--g50);}
 
-/* FOOTER */
-.res-foot{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:var(--g50);border-top:1px solid var(--g100);}
-.res-foot-l{font-size:11px;color:var(--g400);}
-.btn-retry{padding:6px 14px;background:#fff;border:1.5px solid var(--g200);border-radius:5px;font-size:12px;font-weight:700;color:var(--g600);cursor:pointer;transition:all .13s;font-family:inherit;}
-.btn-retry:hover{background:var(--g50);border-color:var(--g300);}
-
-/* ══════════════════════════════════════════════
-   생성 과정 패널
-   - result-area 안에 포함
-   - .proc-panel 은 항상 DOM에 렌더링
-   - .proc-panel.hidden 일 때만 display:none
-   ══════════════════════════════════════════════ */
-.proc-panel{border-top:2px solid var(--g200);}
+/* 생성과정 */
+.proc-panel{border-top:1px solid var(--g100);}
 .proc-panel.hidden{display:none;}
-
-.proc-toggle-btn{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:13px 18px;cursor:pointer;user-select:none;
-  background:var(--g50);transition:background .13s;
-}
-.proc-toggle-btn:hover{background:var(--g100);}
-.proc-toggle-btn.open{background:var(--g100);}
-.proc-toggle-l{display:flex;align-items:center;gap:9px;}
-.proc-lbl{font-size:12px;font-weight:800;color:var(--g700);letter-spacing:-.1px;}
-.proc-cnt-badge{
-  font-size:11px;font-weight:700;
-  background:var(--bluebg);color:var(--blue);
-  border:1px solid var(--bluebd);
-  padding:2px 9px;border-radius:10px;
-}
-.proc-hint{font-size:11px;color:var(--g400);}
-.chevron{width:16px;height:16px;stroke:var(--g500);fill:none;stroke-width:2.5;transition:transform .22s;flex-shrink:0;}
+.proc-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 15px;cursor:pointer;background:var(--proc-toggle);transition:background .13s;}
+.proc-toggle:hover,.proc-toggle.open{background:var(--proc-toggle-hover);}
+.proc-toggle-l{display:flex;align-items:center;gap:7px;}
+.proc-lbl{font-size:11px;font-weight:800;color:var(--txt-sub);}
+.proc-badge{font-size:10px;font-weight:700;background:var(--bluebg);color:var(--blue);border:1px solid var(--bluebd);padding:1px 7px;border-radius:10px;}
+.proc-hint{font-size:10px;color:var(--g400);}
+.chevron{width:13px;height:13px;stroke:var(--g400);fill:none;stroke-width:2.5;transition:transform .2s;}
 .chevron.open{transform:rotate(180deg);}
-
-.proc-body{display:none;border-top:1px solid var(--g200);}
+.proc-body{display:none;border-top:1px solid var(--g100);}
 .proc-body.open{display:block;}
-
-.proc-section{padding:16px 18px;border-bottom:1px solid var(--g100);}
+.proc-section{padding:12px 15px;border-bottom:1px solid var(--g100);}
 .proc-section:last-child{border-bottom:none;}
-.proc-sec-ttl{display:flex;align-items:center;gap:7px;margin-bottom:12px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;}
-.proc-sec-ttl.mask{color:var(--blue);}.proc-sec-ttl.unmask{color:var(--green);}
-.step-pill{font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;}
-.proc-sec-ttl.mask .step-pill{background:var(--bluebg);color:var(--blue);}
-.proc-sec-ttl.unmask .step-pill{background:var(--greenbg);color:var(--green);}
-
-.proc-tbl{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--g200);border-radius:6px;overflow:hidden;}
+.proc-sec-t{display:flex;align-items:center;gap:6px;margin-bottom:9px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;}
+.proc-sec-t.mask{color:var(--blue);}.proc-sec-t.unmask{color:var(--green);}
+.sp{font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;}
+.proc-sec-t.mask .sp{background:var(--bluebg);color:var(--blue);}
+.proc-sec-t.unmask .sp{background:var(--greenbg);color:var(--green);}
+.proc-tbl{width:100%;border-collapse:collapse;font-size:11px;border:1px solid var(--g200);border-radius:6px;overflow:hidden;}
 .proc-tbl thead{background:var(--g800);}
-.proc-tbl thead th{color:rgba(255,255,255,.6);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:7px 11px;text-align:left;border:none;}
+.proc-tbl thead th{color:rgba(255,255,255,.45);font-size:9px;font-weight:700;text-transform:uppercase;padding:5px 9px;text-align:left;border:none;}
 .proc-tbl tbody tr{border-bottom:1px solid var(--g100);}
 .proc-tbl tbody tr:last-child{border-bottom:none;}
-.proc-tbl tbody tr:hover td{background:var(--g50);}
-.proc-tbl tbody td{padding:7px 11px;border:none;color:var(--g700);}
-.tok{font-family:monospace;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.proc-tbl tbody td{padding:5px 9px;border:none;color:var(--txt-sub);}
+.tok{font-family:monospace;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;}
 .tok.co{background:var(--greenbg);color:var(--green);}
 .tok.ac{background:var(--bluebg);color:var(--blue);}
 .tok.ca{background:var(--amberbg);color:var(--amber);}
-.tarr{color:var(--g300);font-size:13px;text-align:center;width:30px;}
-.realv{font-weight:700;color:var(--g800);font-size:12px;font-family:monospace;}
-.tpill{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;}
-.tpill.co{background:var(--greenbg);color:var(--green);}
-.tpill.ac{background:var(--bluebg);color:var(--blue);}
-.tpill.ca{background:var(--amberbg);color:var(--amber);}
+.tarr{color:var(--g300);text-align:center;font-size:12px;}
+.realv{font-weight:700;color:var(--txt-primary);font-size:11px;font-family:monospace;}
 
-/* ── API 키 모달 ── */
-.key-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;}
-.key-overlay.hidden{display:none;}
-.key-modal{background:var(--ink2);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:32px;width:420px;max-width:90vw;box-shadow:0 24px 60px rgba(0,0,0,.5);}
-.key-modal-ico{width:44px;height:44px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
-.key-modal-ico svg{width:22px;height:22px;stroke:white;fill:none;stroke-width:1.8;}
-.key-modal-t{font-size:17px;font-weight:800;color:white;margin-bottom:6px;}
-.key-modal-d{font-size:13px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:22px;}
-.key-input-wrap{position:relative;margin-bottom:14px;}
-.key-input{width:100%;padding:11px 44px 11px 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;color:white;font-size:13px;font-family:monospace;outline:none;transition:border-color .15s;}
-.key-input:focus{border-color:var(--blue);}
-.key-input::placeholder{color:rgba(255,255,255,.25);}
-.key-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,.3);font-size:16px;user-select:none;}
-.key-save-btn{width:100%;padding:12px;background:var(--blue);border:none;border-radius:8px;color:white;font-size:14px;font-weight:700;cursor:pointer;transition:background .13s;font-family:inherit;}
-.key-save-btn:hover{background:var(--blue2);}
-.key-saved-bar{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:7px;margin-bottom:0;}
-.key-saved-txt{font-size:12px;color:#34D399;font-weight:600;}
-.key-change-btn{font-size:11px;color:rgba(255,255,255,.35);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;}
-.key-change-btn:hover{color:rgba(255,255,255,.6);}
-.hdr-key-btn{padding:4px 12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:5px;color:rgba(255,255,255,.5);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s;font-family:inherit;}
-.hdr-key-btn:hover{background:rgba(255,255,255,.12);color:white;}
-.hdr-key-btn.set{border-color:rgba(52,211,153,.4);color:#34D399;background:rgba(52,211,153,.08);}
+/* 입력바 — 항상 하단 고정 */
+.input-bar{padding:12px 18px;background:var(--input-bar-bg);border-top:1px solid var(--border);flex-shrink:0;box-shadow:0 -4px 20px rgba(0,0,0,.06);transition:background .25s;}
+.input-box{display:flex;align-items:flex-end;gap:9px;background:var(--input-box-bg);border:1.5px solid var(--border);border-radius:12px;padding:7px 8px 7px 15px;transition:border-color .15s;}
+.input-box:focus-within{border-color:var(--bluebd);background:#fff;}
+.input-ta{flex:1;background:none;border:none;outline:none;font-size:14px;color:var(--txt-primary);font-family:inherit;resize:none;min-height:22px;max-height:110px;line-height:1.6;padding:2px 0;}
+.input-ta::placeholder{color:var(--g400);}
+.send-btn{width:34px;height:34px;background:var(--blue);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0;}
+.send-btn:hover{background:var(--blue2);}
+.send-btn svg{width:15px;height:15px;stroke:white;fill:none;stroke-width:2;}
+.send-btn:disabled{background:var(--g200);cursor:not-allowed;}
+.input-hint{font-size:11px;color:var(--hint-color);margin-top:5px;padding:0 3px;}
+.err-msg{background:var(--redbg);border:1px solid var(--redbd);border-radius:8px;padding:11px 15px;font-size:13px;color:var(--red);font-weight:500;}
+.loading-inline{padding:11px 15px;font-size:12px;color:var(--g400);display:flex;align-items:center;gap:8px;}
+.spin-sm{display:inline-block;width:12px;height:12px;border:2px solid var(--g200);border-top-color:var(--blue);border-radius:50%;animation:rot .7s linear infinite;flex-shrink:0;}
+@keyframes rot{to{transform:rotate(360deg);}}
+
+/* ── 다크/라이트 모드 토글 ── */
+.theme-toggle{position:fixed;left:20px;bottom:20px;z-index:500;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:24px;border:1px solid;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+[data-theme="dark"] .theme-toggle{background:#1A2D47;border-color:#1E3A5F;color:#94A3B8;}
+[data-theme="dark"] .theme-toggle:hover{background:#1E3A5F;color:#E2E8F0;}
+:root:not([data-theme="dark"]) .theme-toggle{background:rgba(10,22,40,.85);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.7);}
+:root:not([data-theme="dark"]) .theme-toggle:hover{background:rgba(10,22,40,.95);color:white;}
+.theme-toggle-ico{font-size:15px;line-height:1;}
+.theme-toggle-txt{letter-spacing:.2px;}
+
+/* 다크모드 시 분석페이지 전용 색 */
+[data-theme="dark"] .q-search svg{stroke:var(--txt-muted);}
+[data-theme="dark"] .q-search-inp::placeholder{color:var(--txt-muted);}
+[data-theme="dark"] .input-ta::placeholder{color:var(--txt-muted);}
+[data-theme="dark"] .input-box:focus-within{border-color:rgba(37,99,235,.5);background:rgba(37,99,235,.05);}
+[data-theme="dark"] .proc-section{border-bottom:1px solid var(--border);}
+[data-theme="dark"] .proc-tbl{border:1px solid var(--border);}
+[data-theme="dark"] .proc-tbl tbody tr{border-bottom:1px solid var(--border);}
+[data-theme="dark"] .md-content tbody tr:nth-child(even) td{background:rgba(255,255,255,.03);}
+[data-theme="dark"] .md-content tbody tr:hover td{background:rgba(37,99,235,.1);}
+[data-theme="dark"] .md-content thead{background:#070F1E;}
+[data-theme="dark"] .tbl-wrap{border:1px solid var(--border);}
+[data-theme="dark"] .err-msg{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.25);color:#FCA5A5;}
+[data-theme="dark"] .md-content blockquote{background:rgba(37,99,235,.08);color:var(--txt-sub);}
+[data-theme="dark"] .md-content h2{background:rgba(37,99,235,.1);}
+[data-theme="dark"] .chat-q{background:#1D4ED8;}
+[data-theme="dark"] .chat-q.followup{background:#1A2D47;border-color:rgba(255,255,255,.08);color:var(--txt-primary);}
+[data-theme="dark"] .intent-badge.reuse{background:rgba(5,150,105,.1);border-color:rgba(5,150,105,.25);}
+[data-theme="dark"] .intent-badge.refetch{background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.25);}
+[data-theme="dark"] .loading-inline{color:var(--txt-muted);}
+[data-theme="dark"] .hdr-online{color:rgba(255,255,255,.3);}
+[data-theme="dark"] .send-btn:disabled{background:#1A2D47;}
+
+/* ════ 메인 페이지 다크/라이트 테마 ════ */
+/* 다크모드 (기본 어두운 색) */
+[data-theme="dark"]{
+  --main-bg:#0A1628;
+  --main-headline:#ffffff;
+  --main-sub:rgba(255,255,255,.4);
+  --main-chip-bg:rgba(255,255,255,.05);
+  --main-chip-border:rgba(255,255,255,.1);
+  --main-chip-color:rgba(255,255,255,.45);
+  --main-feat-color:rgba(255,255,255,.28);
+  --main-grid:rgba(37,99,235,.07);
+  --main-logo-ver-bg:rgba(255,255,255,.07);
+  --main-logo-ver-border:rgba(255,255,255,.1);
+  --main-logo-ver-color:rgba(255,255,255,.3);
+  --search-bg:rgba(255,255,255,.07);
+  --search-border:rgba(255,255,255,.13);
+  --search-color:#ffffff;
+  --search-ph:rgba(255,255,255,.22);
+  --search-icon-c:rgba(255,255,255,.3);
+  --chips-lbl:rgba(255,255,255,.22);
+  --chip-bg:rgba(255,255,255,.05);
+  --chip-border:rgba(255,255,255,.1);
+  --chip-color:rgba(255,255,255,.45);
+  --feat-color:rgba(255,255,255,.28);
+  --logo-name-c:#ffffff;
+  --logo-ver-bg:rgba(255,255,255,.07);
+  --logo-ver-border:rgba(255,255,255,.1);
+  --logo-ver-color:rgba(255,255,255,.3);
+}
+/* 라이트모드 오버라이드 */
+:root:not([data-theme="dark"]){
+  --main-bg:#F1F5F9;
+  --main-headline:#0F172A;
+  --main-sub:#64748B;
+  --main-chip-bg:#ffffff;
+  --main-chip-border:#E2E8F0;
+  --main-chip-color:#475569;
+  --main-feat-color:#64748B;
+  --main-grid:rgba(37,99,235,.05);
+  --main-logo-ver-bg:#EFF6FF;
+  --main-logo-ver-border:#BFDBFE;
+  --main-logo-ver-color:#2563EB;
+  --search-bg:#ffffff;
+  --search-border:#E2E8F0;
+  --search-color:#0F172A;
+  --search-ph:#94A3B8;
+  --search-icon-c:#94A3B8;
+  --chips-lbl:#94A3B8;
+  --chip-bg:#ffffff;
+  --chip-border:#E2E8F0;
+  --chip-color:#475569;
+  --feat-color:#64748B;
+  --logo-name-c:#0F172A;
+  --logo-ver-bg:#EFF6FF;
+  --logo-ver-border:#BFDBFE;
+  --logo-ver-color:#2563EB;
+}
+/* 라이트모드 글로우 숨기기 */
+:root:not([data-theme="dark"]) .glow{display:none;}
+:root:not([data-theme="dark"]) .search-box:focus-within{border-color:var(--bluebd);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+:root:not([data-theme="dark"]) .main-chip:hover{background:var(--bluebg);border-color:var(--bluebd);color:var(--blue);}
 </style>
 </head>
 <body>
 
+<!-- 다크/라이트 모드 토글 -->
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+  <span class="theme-toggle-ico" id="themeIco">🌙</span>
+  <span class="theme-toggle-txt" id="themeTxt">다크 모드</span>
+</button>
+
 <!-- API 키 모달 -->
-<div class="key-overlay" id="keyOverlay">
+<div class="key-overlay hidden" id="keyOverlay">
   <div class="key-modal">
     <div class="key-modal-ico"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg></div>
     <div class="key-modal-t">Anthropic API 키 입력</div>
@@ -246,715 +455,523 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:#E8E
   </div>
 </div>
 
-<div class="hdr">
-  <div class="hdr-l">
-    <div class="hdr-mark"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6L12 2z"/></svg></div>
-    <span class="hdr-name">SecureAgent</span>
-    <span class="hdr-ver">v2.0</span>
-  </div>
-  <div class="hdr-r">
-    <span style="font-size:11px;color:rgba(255,255,255,.3);">BranchQ 연동</span>
-    <button class="hdr-key-btn" id="hdrKeyBtn" onclick="openKeyModal()">API 키 미설정</button>
-    <div class="hdr-online"><div class="hdr-dot"></div>정상 운영</div>
+<!-- ════ MAIN 페이지 ════ -->
+<div class="page active" id="pagMain">
+  <div class="glow glow1"></div>
+  <div class="glow glow2"></div>
+  <div class="glow glow3"></div>
+  <div class="main-wrap">
+    <div class="main-logo">
+      <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6L12 2z"/></svg></div>
+      <span class="logo-name">SecureAgent</span>
+      <span class="logo-ver">v2.0</span>
+    </div>
+    <h1 class="main-headline">금융 데이터를<br><span class="hl">안전하게 분석</span>하다</h1>
+    <p class="main-sub">민감정보를 자동 마스킹하고 Claude AI가 분석합니다.<br>계좌번호·회사명은 LLM에 절대 노출되지 않습니다.</p>
+    <div class="main-search">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-inp" id="mainInp" placeholder="궁금한 것을 물어보세요. 예) 자금현황 알려줘" onkeydown="if(event.key==='Enter')mainSearch()">
+        <button class="search-btn" onclick="mainSearch()">분석 시작</button>
+      </div>
+    </div>
+    <div class="chips-label">빠른 질문</div>
+    <div class="main-chips">
+      <div class="main-chip" onclick="quickQ('자금현황')">자금현황</div>
+      <div class="main-chip" onclick="quickQ('수시입출계좌 잔액')">수시입출계좌 잔액</div>
+      <div class="main-chip" onclick="quickQ('이번 달 수시입출 거래내역')">이번 달 거래내역</div>
+      <div class="main-chip" onclick="quickQ('대출 잔액')">대출 잔액</div>
+      <div class="main-chip" onclick="quickQ('3달간 카드 승인내역')">카드 승인내역</div>
+      <div class="main-chip" onclick="quickQ('최근 환율')">최근 환율</div>
+      <div class="main-chip" onclick="quickQ('달러 잔액 조회')">달러 잔액</div>
+      <div class="main-chip" onclick="quickQ('신탁계좌 만기일')">신탁계좌 만기일</div>
+      <div class="main-chip" onclick="quickQ('증권계좌 잔액')">증권계좌 잔액</div>
+    </div>
+    <div class="main-feats">
+      <div class="feat"><div class="feat-dot fd-blue"></div>자동 마스킹 · 역마스킹</div>
+      <div class="feat"><div class="feat-dot fd-green"></div>Claude AI 금융 분석</div>
+      <div class="feat"><div class="feat-dot fd-purple"></div>추가질문 대화 지원</div>
+    </div>
   </div>
 </div>
 
-<div class="main">
-
-  <!-- 질문 선택 -->
-  <div class="surface">
-    <div class="surface-hdr">
-      <span class="surface-ttl">질문 선택</span>
-      <span class="surface-sub">브랜치Q 샘플 16종</span>
+<!-- ════ ANALYSIS 페이지 ════ -->
+<div class="page" id="pagAnalysis">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="hdr-back" onclick="goMain()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></div>
+      <div class="hdr-mark"><svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6L12 2z"/></svg></div>
+      <span class="hdr-name">SecureAgent</span>
+      <span class="hdr-ver">v2.0</span>
     </div>
-    <div class="chips-area">
-      <div class="chip" onclick="sel(this,'자금현황')">자금현황</div>
-      <div class="chip" onclick="sel(this,'월간 자금 흐름')">월간 자금 흐름</div>
-      <div class="chip" onclick="sel(this,'수시입출계좌 잔액')">수시입출계좌 잔액</div>
-      <div class="chip" onclick="sel(this,'이번 달 수시입출 거래내역')">이번 달 거래내역</div>
-      <div class="chip" onclick="sel(this,'보유하고 있는 전체 계좌')">전체 계좌 조회</div>
-      <div class="chip" onclick="sel(this,'대출 잔액')">대출 잔액</div>
-      <div class="chip" onclick="sel(this,'3달간 카드 승인내역')">카드 승인내역</div>
-      <div class="chip" onclick="sel(this,'가장 많이 쓴 카드 사용처')">많이 쓴 카드 사용처</div>
-      <div class="chip" onclick="sel(this,'3개월간 매입 세금계산서')">매입 세금계산서</div>
-      <div class="chip" onclick="sel(this,'최근 환율')">최근 환율</div>
-      <div class="chip" onclick="sel(this,'달러 잔액 조회')">달러 잔액</div>
-      <div class="chip" onclick="sel(this,'외화 총액')">외화 총액</div>
-      <div class="chip" onclick="sel(this,'증권계좌 잔액')">증권계좌 잔액</div>
-      <div class="chip" onclick="sel(this,'은행별 외화 보유수량')">은행별 외화 보유수량</div>
-      <div class="chip" onclick="sel(this,'공급가액 순 세금계산서')">공급가액 순 세금계산서</div>
-      <div class="chip" onclick="sel(this,'신탁계좌 만기일')">신탁계좌 만기일</div>
+    <div class="hdr-r">
+      <button class="hdr-key-btn" id="hdrKeyBtn" onclick="openKeyModal()">API 키 미설정</button>
+      <div class="hdr-online"><div class="hdr-dot"></div>정상 운영</div>
     </div>
   </div>
-
-  <!-- AI 분석 리포트 카드 -->
-  <div class="surface">
-    <div class="surface-hdr">
-      <span class="surface-ttl">AI 분석 리포트</span>
-      <span class="surface-sub" id="resBadge">질문을 선택하세요</span>
-    </div>
-
-    <!-- 파이프라인 (한글) -->
-    <div class="pipe">
-      <div class="ps" id="ps1"><div class="pd"></div>마스킹</div>
-      <div class="pa">›</div>
-      <div class="ps" id="ps2"><div class="pd"></div>AI 분석</div>
-      <div class="pa">›</div>
-      <div class="ps" id="ps3"><div class="pd"></div>복원</div>
-      <div class="pa">›</div>
-      <div class="ps" id="ps4"><div class="pd"></div>완료</div>
-    </div>
-
-    <!-- 빈 상태 -->
-    <div class="state-empty" id="stateEmpty">
-      <div class="empty-ico"><svg viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div>
-      <div class="empty-t">질문을 선택해 주세요</div>
-      <div class="empty-d">브랜치Q 데이터를 자동으로 불러와<br>마스킹 → AI 분석 → 복원 순으로 처리합니다.</div>
-    </div>
-
-    <!-- 실시간 마스킹 시각화 로딩 -->
-    <div class="state-loading" id="stateLoading">
-      <div class="mask-viz-header">
-        <div class="mask-viz-title"><div class="mask-viz-blink"></div>SecureAgent 보안 처리 중</div>
-        <div class="mask-viz-phase" id="vizPhase"><span>STEP 1</span> · 민감정보 스캔 중...</div>
-      </div>
-      <div class="mask-viz-body" id="vizBody"></div>
-      <div class="mask-viz-footer">
-        <div class="mask-stat"><div class="msd co"></div><span class="msv" id="cntCo">0</span><span class="msl">회사명</span></div>
-        <div class="mask-stat"><div class="msd ac"></div><span class="msv" id="cntAc">0</span><span class="msl">계좌번호</span></div>
-        <div class="mask-stat"><div class="msd ca"></div><span class="msv" id="cntCa">0</span><span class="msl">카드번호</span></div>
-        <div class="mask-wait" id="vizWait">AI 분석 대기<span class="mask-dots"><span>.</span><span>.</span><span>.</span></span></div>
-      </div>
-    </div>
-
-    <!-- 에러 -->
-    <div class="state-error" id="stateError">
-      <div class="err-txt" id="errTxt"></div>
-    </div>
-
-    <!-- ══ 결과 영역 ══ -->
-    <div class="result-area" id="resultArea">
-
-      <!-- 질문 메타 -->
-      <div class="res-meta">
-        <div>
-          <div class="res-q-lbl">분석 질문</div>
-          <div class="res-q-txt" id="resQ"></div>
-        </div>
-        <div class="mtags" id="mtags"></div>
-      </div>
-
-      <!-- 보고서 본문 -->
-      <div class="report-body">
-        <div class="ai-hdr">
-          <div class="ai-mark"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div>
-          <div>
-            <div class="ai-name">SecureAgent AI</div>
-            <div class="ai-sub">Financial Intelligence Report</div>
-          </div>
-          <div class="ai-ts" id="aiTs"></div>
-        </div>
-        <div class="report-content" id="reportContent"></div>
-      </div>
-
-      <!-- 하단 액션 -->
-      <div class="res-foot">
-        <span class="res-foot-l" id="resFootL"></span>
-        <button class="btn-retry" onclick="retry()">다시 분석</button>
-      </div>
-
-      <!-- ★★★ 생성 과정 패널 ★★★
-           result-area 안에 포함되어 result-area가 display:block이 되면 자동으로 보임
-           .hidden 클래스를 제거하면 패널 노출, 추가하면 숨김 -->
-      <div class="proc-panel hidden" id="procPanel">
-        <div class="proc-toggle-btn" id="procToggleBtn" onclick="toggleProc()">
-          <div class="proc-toggle-l">
-            <span class="proc-lbl">생성 과정 상세보기</span>
-            <span class="proc-cnt-badge" id="procCnt">0건</span>
-            <span class="proc-hint">마스킹 · AI 분석 · 역마스킹 처리 내역</span>
-          </div>
-          <svg class="chevron" id="chevron" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </div>
-        <div class="proc-body" id="procBody">
-          <div class="proc-section">
-            <div class="proc-sec-ttl mask">
-              <span class="step-pill">STEP 1</span>마스킹 — 민감정보를 보안 토큰으로 치환
-            </div>
-            <table class="proc-tbl">
-              <thead><tr><th>유형</th><th>원본 실제값</th><th style="width:30px"></th><th>치환된 보안 토큰</th></tr></thead>
-              <tbody id="maskRows"></tbody>
-            </table>
-          </div>
-          <div class="proc-section">
-            <div class="proc-sec-ttl unmask">
-              <span class="step-pill">STEP 3</span>역마스킹 — 보안 토큰을 실제값으로 복원
-            </div>
-            <table class="proc-tbl">
-              <thead><tr><th>유형</th><th>보안 토큰</th><th style="width:30px"></th><th>복원된 실제값</th></tr></thead>
-              <tbody id="unmaskRows"></tbody>
-            </table>
-          </div>
+  <div class="analysis-layout">
+    <div class="q-panel">
+      <div class="q-panel-hdr">
+        <div class="q-panel-ttl">질문 목록</div>
+        <div class="q-search">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="q-search-inp" id="qSrch" placeholder="질문 검색..." oninput="renderQList(this.value)">
         </div>
       </div>
-      <!-- ★★★ /생성 과정 패널 ★★★ -->
-
-    </div><!-- /result-area -->
-  </div><!-- /surface -->
-
-</div><!-- /main -->
+      <div class="q-list" id="qList"></div>
+    </div>
+    <div class="main-content">
+      <div class="pipe">
+        <div class="ps" id="ps1"><div class="pd"></div>마스킹</div>
+        <div class="pa">›</div>
+        <div class="ps" id="ps2"><div class="pd"></div>AI 분석</div>
+        <div class="pa">›</div>
+        <div class="ps" id="ps3"><div class="pd"></div>복원</div>
+        <div class="pa">›</div>
+        <div class="ps" id="ps4"><div class="pd"></div>완료</div>
+      </div>
+      <div class="chat-area" id="chatArea"></div>
+      <div class="input-bar">
+        <div class="input-box">
+          <textarea class="input-ta" id="chatTa" placeholder="추가 질문 입력... (Enter: 전송 / Shift+Enter: 줄바꿈)" rows="1"
+            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendChat()">
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.269 20.876L5.999 12zm0 0h7.5"/></svg>
+          </button>
+        </div>
+        <div class="input-hint" id="inputHint">왼쪽에서 질문을 선택하거나 직접 입력하세요</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-// ── API 키 관리 ──
-var STORAGE_KEY = 'secureagent_api_key';
+// ════════ 샘플 데이터 ════════
+const SD={
+"자금현황":`자금현황\n회사명 계좌구분 은행명 통화코드 총잔고\n20260313 (주)쿠콘글로벌지점 수시 경남은행 EUR 1.11\n20260313 (주)쿠콘글로벌지점 수시 광주은행 KRW 34,070\n20260313 (주)쿠콘글로벌지점 수시 국민은행 USD 61.72\n20260313 (주)쿠콘글로벌지점 수시 기업은행 KRW 38,490\n20260313 (주)쿠콘글로벌지점 예적금 기업은행 KRW 121,000\n20260313 AI 테스용사업장 대출 농협은행 KRW 8,000,000,000\n20260313 AI 테스용사업장 예적금 농협은행 KRW 127,540,000\n20260313 씨앤에스 대출 농협은행 KRW 2,750,000,000\n20260313 씨앤에스 수시 광주은행 KRW 52,688\n20260313 씨앤에스 수시 농협은행 KRW 18,424\n20260313 씨앤에스 예적금 경남은행 KRW 1,058,903,714\n20260313 씨앤에스 예적금 기업은행 KRW 1,054,476,923\n20260313 씨앤에스 예적금 우리은행 KRW 1,000,000,000\n20260313 웹케시테스트 예적금 농협은행 KRW 0`,
+"월간 자금 흐름":`월간 자금 흐름\n기준일자 회사명 통화코드 입출금구분 잔액\n20260228 (주)쿠콘글로벌지점 KRW 수시 1,541,248\n20260131 (주)쿠콘글로벌지점 KRW 수시 2,038,164\n20260228 AI 테스용사업장 KRW 대출 8,250,000,000\n20260228 AI 테스용사업장 KRW 예적금 127,540,000\n20260228 씨앤에스 KRW 대출 2,750,000,000\n20260228 씨앤에스 KRW 수시 85,159\n20260228 씨앤에스 KRW 예적금 3,123,408,637`,
+"수시입출계좌 잔액":`수시입출계좌 잔액 EUR 8.46 JPY 473.00 USD 210.26 KRW 157,827\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 EUR 1.11\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 JPY 103.00\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 USD 11.39\n(주)쿠콘글로벌지점 수시 광주은행 1107020736263 KRW 34,070\n(주)쿠콘글로벌지점 수시 국민은행 75266811010050 USD 61.72\n씨앤에스 수시 농협은행 134401000445 KRW 11,262\n씨앤에스 수시 농협은행 134401000458 KRW 1,615\n씨앤에스 수시 하나은행 14091001922404 KRW 4,073`,
+"이번 달 수시입출 거래내역":`이번 달 거래내역 입금 15건 출금 38건\n회사명 계좌구분 은행명 계좌번호 거래일자 거래시간 입금금액 출금금액 잔액 비고\n(주)쿠콘글로벌지점 수시 농협은행 301024282204 20260309 05:56:18 1 0 102,384 IN_0556\n(주)쿠콘글로벌지점 수시 농협은행 301024282204 20260309 05:40:37 0 501 102,383 주식회사 쿠콘\n씨앤에스 수시 농협은행 134401000445 20260311 15:56:37 10 0 11,262\n씨앤에스 수시 농협은행 134401000445 20260310 09:02:39 0 10 11,261 경리나라스크래핑이체\n씨앤에스 수시 농협은행 134401000458 20260311 15:56:37 0 10 1,615 보안자등록`,
+"보유하고 있는 전체 계좌":`전체 계좌 목록\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 EUR 1.11\n(주)쿠콘글로벌지점 수시 광주은행 1107020736263 KRW 34,070\n(주)쿠콘글로벌지점 수시 기업은행 08908275401014 KRW 38,490\n(주)쿠콘글로벌지점 예적금 기업은행 08908275415001 KRW 121,000\nAI 테스용사업장 대출 농협은행 01**20**23901 KRW 8,000,000,000\n씨앤에스 대출 농협은행 4726614401201 KRW 700,000,000\n씨앤에스 수시 농협은행 134401000445 KRW 11,262\n씨앤에스 예적금 경남은행 713072043839 KRW 1,058,903,714\n법케시사업장 대출 농협은행 9912351233246234 KRW 0\n웹케시테스트 예적금 농협은행 13421512513512341243 KRW 0`,
+"대출 잔액":`대출 잔액 11,000,000,000원\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\nAI 테스용사업장 대출 기업은행 03**04**93200033 KRW 0\nAI 테스용사업장 대출 농협은행 01**20**23901 KRW 8,000,000,000\nAI 테스용사업장 대출 농협은행 01**20**64481 KRW 250,000,000\n법케시사업장 대출 농협은행 9912351233246234 KRW 0\n씨앤에스 대출 농협은행 4726614401201 KRW 700,000,000\n씨앤에스 대출 농협은행 7777777 KRW 2,050,000,000`,
+"3달간 카드 승인내역":`3달간 카드 승인내역 5,542건\n회사명 카드사명 카드번호 내역구분 사용일자 사용시간 승인번호 총승인금액 가맹점명\n씨앤에스 NH카드 5531710494453518 승인 20260127 23:31 84664911 55,000 주식회사 카카오모빌리티\n씨앤에스 NH카드 5531710494453518 승인 20260127 22:59 82364901 2,000 GS25논산은솔점\n씨앤에스 NH카드 5531710494453518 승인 20260127 21:43 84990656 20,000 어해도횟집\n씨앤에스 NH카드 5531710494453518 승인 20260127 20:29 83821655 43,875 여주셀프주유소`,
+"가장 많이 쓴 카드 사용처":`가장 많이 쓴 카드 사용처\n회사명 통화코드 총 승인금액 가맹점명\n씨앤에스 KRW 140,126,684 (주)하나투어-ARS`,
+"3개월간 매입 세금계산서":`3개월간 매입 세금계산서 16,089,647,306원\n회사명 매출입구분 합계금액\n씨앤에스 매입 15,089,255,660\n웹케시테스트 매입 1,000,391,646`,
+"최근 환율":`최근 환율\n환율등록일 통화코드 통화명 평균기준환율 전신환매도율 전신환매입율\n20260309 USD 미국 1,474.50 1,460.20 1,488.80\n20260309 EUR 유로통화 1,700.84 1,683.84 1,717.84\n20260309 JPY 일본 931.61 922.49 940.73\n20260309 CNY 중국 213.29 211.18 215.40\n20260308 USD 미국 1,464.30 1,450.10 1,478.50`,
+"달러 잔액 조회":`달러 잔액 USD 210.26\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 USD 11.39\n(주)쿠콘글로벌지점 수시 국민은행 75266811010050 USD 61.72\n(주)쿠콘글로벌지점 수시 농협은행 4520016999431 USD 4.06\n(주)쿠콘글로벌지점 수시 신한은행 180008634281 USD 50.86`,
+"외화 총액":`외화 총액 EUR 8.46 JPY 473.00 USD 210.26\n회사명 계좌구분 은행명 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 EUR 1.11\n(주)쿠콘글로벌지점 수시 경남은행 JPY 103.00\n(주)쿠콘글로벌지점 수시 농협은행 EUR 5.20\n씨앤에스 수시 농협은행 USD 0.00\nAI 테스용사업장 수시 한국씨티은행 USD 0.00`,
+"증권계좌 잔액":`증권계좌 잔액 USD 25.04\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\nAI 테스용사업장 증권 농협은행 4580000006621 USD 25.04`,
+"은행별 외화 보유수량":`은행별 외화 보유수량 최근 1개월\n회사명 계좌구분 은행명 통화코드 입금금액 출금금액\n(주)쿠콘글로벌지점 수시 경남은행 EUR 0.00 0.00\n(주)쿠콘글로벌지점 수시 국민은행 EUR 1.10 5.00\n(주)쿠콘글로벌지점 수시 국민은행 USD 155,554,000,002.49 5.00\n(주)쿠콘글로벌지점 수시 농협은행 EUR 5.00 3.70`,
+"공급가액 순 세금계산서":`공급가액 순 세금계산서 최근 1개월\n회사명 매출입구분 승인번호 작성일자 공급받는자 공급자 공급가액 세액 합계금액\n씨앤에스 매출 20250430-41000026-000f9m0z 20260224 웹케시(주) 웹케시씨앤에스 주식회사 1,632,761,670 163,276,170 1,796,037,840\n씨앤에스 매출 20250430-41000026-000f9m47 20260222 웹케시(주) 웹케시씨앤에스 주식회사 1,516,774,542 151,677,456 1,668,451,998\n씨앤에스 매입 20250306-41000026-000f3dbw 20260216 웹케시씨앤에스 주식회사 인터프로셀(주) 182,371,716 18,237,174 200,608,890\n웹케시테스트 매입 20251101-10251106-31410617 20260215 웹케시씨앤에스 주식회사 웹케시테스트 0 0 0`,
+"신탁계좌 만기일":`신탁계좌 만기일\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고 만기일자\n(주)쿠콘글로벌지점 신탁 농협은행 0900155151515 KRW 0\n(주)쿠콘글로벌지점 신탁 농협은행 5646456456456 KRW 0\n씨앤에스 신탁 농협은행 03201052355522 KRW 0 20251209\n씨앤에스 신탁 농협은행 090455222111111 KRW 0\n씨앤에스 신탁 농협은행 11122233444568 KRW 0 2025-12-22`
+};
+const Q_LABELS=Object.keys(SD);
 
-function getKey(){
-  return localStorage.getItem(STORAGE_KEY) || '';
-}
+// ════════ 상태 ════════
+var session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:null};
+var busy=false,turnCnt=0;
 
+// ════════ API 키 ════════
+var SK='secureagent_api_key';
+function getKey(){return localStorage.getItem(SK)||'';}
 function openKeyModal(){
-  var key = getKey();
-  if(key){
-    document.getElementById('keyInputArea').style.display='none';
-    document.getElementById('keySavedArea').style.display='block';
-    document.getElementById('keyMasked').textContent = key.substring(0,12)+'...'+key.slice(-4);
-  } else {
-    document.getElementById('keyInputArea').style.display='block';
-    document.getElementById('keySavedArea').style.display='none';
-  }
+  var k=getKey();
+  document.getElementById('keyInputArea').style.display=k?'none':'block';
+  document.getElementById('keySavedArea').style.display=k?'block':'none';
+  if(k) document.getElementById('keyMasked').textContent=k.substring(0,12)+'...'+k.slice(-4);
   document.getElementById('keyOverlay').classList.remove('hidden');
 }
-
 function saveKey(){
-  var val = document.getElementById('keyInput').value.trim();
-  if(!val || !val.startsWith('sk-ant-')){
-    document.getElementById('keyInput').style.borderColor='#F87171';
-    document.getElementById('keyInput').placeholder='sk-ant- 로 시작하는 키를 입력하세요';
-    return;
-  }
-  localStorage.setItem(STORAGE_KEY, val);
+  var v=document.getElementById('keyInput').value.trim();
+  if(!v||!v.startsWith('sk-ant-')){document.getElementById('keyInput').style.borderColor='#F87171';return;}
+  localStorage.setItem(SK,v);
   updateKeyBtn();
   document.getElementById('keyOverlay').classList.add('hidden');
   document.getElementById('keyInput').value='';
 }
-
 function changeKey(){
   document.getElementById('keyInputArea').style.display='block';
   document.getElementById('keySavedArea').style.display='none';
   document.getElementById('keyInput').value='';
-  document.getElementById('keyInput').focus();
 }
-
-function toggleKeyVis(){
-  var inp = document.getElementById('keyInput');
-  inp.type = inp.type==='password' ? 'text' : 'password';
-}
-
+function toggleKeyVis(){var i=document.getElementById('keyInput');i.type=i.type==='password'?'text':'password';}
 function updateKeyBtn(){
-  var btn = document.getElementById('hdrKeyBtn');
-  var key = getKey();
-  if(key){
-    btn.textContent = 'API 키 ✓';
-    btn.classList.add('set');
-  } else {
-    btn.textContent = 'API 키 미설정';
-    btn.classList.remove('set');
+  var b=document.getElementById('hdrKeyBtn');if(!b)return;
+  if(getKey()){b.textContent='API 키 ✓';b.classList.add('set');}
+  else{b.textContent='API 키 미설정';b.classList.remove('set');}
+}
+
+// ════════ 페이지 전환 ════════
+function goMain(){
+  document.getElementById('pagMain').classList.add('active');
+  document.getElementById('pagAnalysis').classList.remove('active');
+}
+function goAnalysis(firstQ){
+  if(!getKey()){openKeyModal();return;}
+  document.getElementById('pagMain').classList.remove('active');
+  document.getElementById('pagAnalysis').classList.add('active');
+  updateKeyBtn();renderQList('');
+  if(firstQ) startNewQ(firstQ);
+}
+function quickQ(q){if(!getKey()){openKeyModal();return;}goAnalysis(q);}
+function mainSearch(){
+  var q=document.getElementById('mainInp').value.trim();
+  if(!getKey()){openKeyModal();return;}
+  goAnalysis(q||null);
+  if(q&&!SD[q]){
+    setTimeout(function(){
+      document.getElementById('chatTa').value=q;
+      autoResize(document.getElementById('chatTa'));
+      sendChat();
+    },100);
   }
 }
 
-// 페이지 로드 시 키 없으면 모달 자동 오픈
-window.addEventListener('load', function(){
-  updateKeyBtn();
-  if(!getKey()){
-    openKeyModal();
-  }
-});
-
-// Enter 키로 저장
-document.addEventListener('keydown', function(e){
-  if(e.key==='Enter' && !document.getElementById('keyOverlay').classList.contains('hidden')){
-    saveKey();
-  }
-});
-
-
-const SD={
-"자금현황":`자금현황\n요청주신 질문에 대한 데이터는 아래 표와 같습니다.\n등록일 회사명 계좌구분 은행명 통화코드 총잔고\n20260313 (주)쿠콘글로벌지점 수시 경남은행 EUR 1.11\n20260313 (주)쿠콘글로벌지점 수시 광주은행 KRW 34,070\n20260313 (주)쿠콘글로벌지점 수시 국민은행 USD 61.72\n20260313 (주)쿠콘글로벌지점 수시 기업은행 KRW 38,490\n20260313 (주)쿠콘글로벌지점 예적금 기업은행 KRW 121,000\n20260313 AI 테스용사업장 대출 농협은행 KRW 8,000,000,000\n20260313 AI 테스용사업장 예적금 농협은행 KRW 127,540,000\n20260313 씨앤에스 대출 농협은행 KRW 2,750,000,000\n20260313 씨앤에스 수시 광주은행 KRW 52,688\n20260313 씨앤에스 수시 농협은행 KRW 18,424\n20260313 씨앤에스 예적금 경남은행 KRW 1,058,903,714\n20260313 씨앤에스 예적금 기업은행 KRW 1,054,476,923\n20260313 씨앤에스 예적금 우리은행 KRW 1,000,000,000\n20260313 웹케시테스트 예적금 농협은행 KRW 0`,
-"월간 자금 흐름":`월간 자금 흐름\n기준일자 회사명 통화코드 입출금구분 잔액\n20260228 (주)쿠콘글로벌지점 KRW 수시 1,541,248\n20260131 (주)쿠콘글로벌지점 KRW 수시 2,038,164\n20251231 (주)쿠콘글로벌지점 KRW 수시 937,968\n20251130 (주)쿠콘글로벌지점 KRW 수시 937,957\n20251031 (주)쿠콘글로벌지점 KRW 수시 764,434\n20250930 (주)쿠콘글로벌지점 KRW 수시 817,037\n20260228 AI 테스용사업장 KRW 대출 8,250,000,000\n20260131 AI 테스용사업장 KRW 대출 9,550,000,000\n20260228 AI 테스용사업장 KRW 예적금 127,540,000\n20260131 AI 테스용사업장 KRW 예적금 105,765,000\n20260228 씨앤에스 KRW 대출 2,750,000,000\n20260228 씨앤에스 KRW 수시 85,159\n20260131 씨앤에스 KRW 수시 84,345\n20260228 씨앤에스 KRW 예적금 3,123,408,637\n20260131 씨앤에스 KRW 예적금 3,123,408,637`,
-"수시입출계좌 잔액":`수시입출계좌 잔액은 EUR 8.46, JPY 473.00, USD 210.26, KRW 157,827.00 입니다.\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 EUR 1.11\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 JPY 103.00\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 USD 11.39\n(주)쿠콘글로벌지점 수시 광주은행 1107020736263 KRW 34,070\n(주)쿠콘글로벌지점 수시 국민은행 75266811010050 USD 61.72\n(주)쿠콘글로벌지점 수시 기업은행 08908275401014 KRW 38,490\n씨앤에스 수시 농협은행 134401000445 KRW 11,262\n씨앤에스 수시 농협은행 134401000458 KRW 1,615\n씨앤에스 수시 하나은행 14091001922404 KRW 4,073`,
-"이번 달 수시입출 거래내역":`이번 달 수시입출 거래내역은 입금 15건 145원, 출금 38건 829,851원 입니다.\n회사명 계좌구분 은행명 계좌번호 거래일자 거래시간 입금금액 출금금액 거래후잔액 비고\n(주)쿠콘글로벌지점 수시 농협은행 301024282204 20260309 05:56:18 1 0 102,384 IN_0556\n(주)쿠콘글로벌지점 수시 농협은행 301024282204 20260309 05:40:37 0 501 102,383 주식회사 쿠콘\n(주)쿠콘글로벌지점 수시 농협은행 301024282204 20260306 06:17:57 1 0 102,884 IN_0617\n씨앤에스 수시 농협은행 134401000445 20260311 15:56:37 10 0 11,262\n씨앤에스 수시 농협은행 134401000445 20260310 09:02:39 0 10 11,261 경리나라스크래핑이체\n씨앤에스 수시 농협은행 134401000445 20260306 15:44:52 0 7 11,271 웹케시\n씨앤에스 수시 농협은행 134401000458 20260311 15:56:37 0 10 1,615 보안자등록\n씨앤에스 수시 농협은행 134401000458 20260310 09:02:39 100 0 1,616 경리나라스크래핑이체`,
-"보유하고 있는 전체 계좌":`전체 계좌 목록\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 EUR 1.11\n(주)쿠콘글로벌지점 수시 광주은행 1107020736263 KRW 34,070\n(주)쿠콘글로벌지점 수시 기업은행 08908275401014 KRW 38,490\n(주)쿠콘글로벌지점 예적금 기업은행 08908275415001 KRW 121,000\nAI 테스용사업장 대출 농협은행 01**20**23901 KRW 8,000,000,000\n씨앤에스 대출 농협은행 4726614401201 KRW 700,000,000\n씨앤에스 대출 농협은행 7777777 KRW 2,050,000,000\n씨앤에스 수시 광주은행 1107021853807 KRW 52,125\n씨앤에스 수시 농협은행 134401000445 KRW 11,262\n씨앤에스 예적금 경남은행 713072043839 KRW 1,058,903,714\n씨앤에스 예적금 기업은행 25500043401321 KRW 1,054,476,923\n씨앤에스 예적금 우리은행 10056012889975 KRW 1,000,000,000\n법케시사업장 대출 농협은행 9912351233246234 KRW 0\n웹케시테스트 예적금 농협은행 13421512513512341243 KRW 0`,
-"대출 잔액":`대출 잔액은 11,000,000,000원 입니다.\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\nAI 테스용사업장 대출 기업은행 03**04**93200033 KRW 0\nAI 테스용사업장 대출 농협은행 01**20**23901 KRW 8,000,000,000\nAI 테스용사업장 대출 농협은행 01**20**64481 KRW 250,000,000\n법케시사업장 대출 농협은행 9912351233246234 KRW 0\n씨앤에스 대출 농협은행 4726614401201 KRW 700,000,000\n씨앤에스 대출 농협은행 7777777 KRW 2,050,000,000`,
-"3달간 카드 승인내역":`3달간 카드 승인내역은 5,542건 2,879,314,834원 입니다.\n회사명 카드사명 카드번호 내역구분 사용일자 사용시간 승인번호 총승인금액 가맹점명\n씨앤에스 NH카드(웹케시씨앤에스) 5531710494453518 승인 20260127 23:31 84664911 55,000 주식회사 카카오모빌리티\n씨앤에스 NH카드(웹케시씨앤에스) 5531710494453518 승인 20260127 22:59 82364901 2,000 GS25논산은솔점\n씨앤에스 NH카드(웹케시씨앤에스) 5531710494453518 승인 20260127 21:43 84990656 20,000 어해도횟집\n씨앤에스 NH카드(웹케시씨앤에스) 5531710494453518 승인 20260127 20:29 83821655 43,875 여주셀프주유소\n씨앤에스 NH카드(웹케시씨앤에스) 5531710494453518 승인 20260127 20:18 78198036 50,000 루이스`,
-"가장 많이 쓴 카드 사용처":`가장 많이 쓴 카드 사용처\n회사명 통화코드 총 승인금액 가맹점명\n씨앤에스 KRW 140,126,684 (주)하나투어-ARS`,
-"3개월간 매입 세금계산서":`3개월간 매입 세금계산서 금액은 16,089,647,306원 입니다.\n회사명 매출입구분 합계금액\n씨앤에스 매입 15,089,255,660\n웹케시테스트 매입 1,000,391,646`,
-"최근 환율":`최근 환율 정보\n환율등록일 통화코드 통화명 평균기준환율 평균전신환매도율 평균전신환매입율\n20260309 USD 미국 1,474.50 1,460.20 1,488.80\n20260309 EUR 유로통화 1,700.84 1,683.84 1,717.84\n20260309 JPY 일본 931.61 922.49 940.73\n20260309 CNY 중국 213.29 211.18 215.40\n20260309 GBP 영국 1,963.67 1,944.23 1,983.11\n20260309 AUD 호주 1,029.05 1,018.87 1,039.23\n20260308 USD 미국 1,464.30 1,450.10 1,478.50\n20260308 EUR 유로통화 1,699.54 1,682.55 1,716.53`,
-"달러 잔액 조회":`현재 보유중인 달러 잔액은 USD 210.26 입니다.\n회사명 계좌구분 은행명 계좌번호 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 2810002267104 USD 11.39\n(주)쿠콘글로벌지점 수시 국민은행 75266811010050 USD 61.72\n(주)쿠콘글로벌지점 수시 농협은행 4520016999431 USD 4.06\n(주)쿠콘글로벌지점 수시 신한은행 180008634281 USD 50.86\n(주)쿠콘글로벌지점 수시 우리은행 1081600840825 USD 40.85\n(주)쿠콘글로벌지점 수시 하나은행 11791000364438 USD 10.08\n(주)쿠콘글로벌지점 수시 하나은행 15091001434138 USD 13.34`,
-"외화 총액":`보유 중인 외화 총액은 EUR 8.46, JPY 473.00, USD 210.26 입니다.\n회사명 계좌구분 은행명 통화코드 총잔고\n(주)쿠콘글로벌지점 수시 경남은행 EUR 1.11\n(주)쿠콘글로벌지점 수시 경남은행 JPY 103.00\n(주)쿠콘글로벌지점 수시 경남은행 USD 11.39\n(주)쿠콘글로벌지점 수시 국민은행 USD 61.72\n(주)쿠콘글로벌지점 수시 농협은행 EUR 5.20\n씨앤에스 수시 농협은행 USD 0.00\nAI 테스용사업장 수시 한국씨티은행 USD 0.00`,
-"증권계좌 잔액": `증권계좌 잔액은 USD 25.04 입니다.
-회사명 계좌구분 은행명 계좌번호 통화코드 총잔고 잔액업데이트시간
-AI 테스용사업장 증권 농협은행 4580000006621 USD 25.04`,
-"은행별 외화 보유수량": `은행별 외화 보유수량 (최근 1개월 입출금 기준)
-회사명 계좌구분 은행명 통화코드 입금금액 출금금액
-(주)쿠콘글로벌지점 수시 경남은행 EUR 0.00 0.00
-(주)쿠콘글로벌지점 수시 경남은행 JPY 0.00 0.00
-(주)쿠콘글로벌지점 수시 경남은행 USD 0.00 0.00
-(주)쿠콘글로벌지점 수시 국민은행 EUR 1.10 5.00
-(주)쿠콘글로벌지점 수시 국민은행 JPY 0.00 10.00
-(주)쿠콘글로벌지점 수시 국민은행 USD 155,554,000,002.49 5.00
-(주)쿠콘글로벌지점 수시 농협은행 EUR 5.00 3.70
-(주)쿠콘글로벌지점 수시 농협은행 USD 5.00 1.88
-(주)쿠콘글로벌지점 수시 신한은행 USD 0.00 4.00
-(주)쿠콘글로벌지점 수시 아이엠뱅크 USD 0.00 0.00`,
-"공급가액 순 세금계산서": `공급가액 큰 순서 세금계산서 (최근 1개월)
-회사명 매출입구분 승인번호 작성일자 공급받는자 공급자 공급가액 세액 합계금액
-씨앤에스 매출 20250430-41000026-000f9m0z 20260224 웹케시(주) 웹케시씨앤에스 주식회사 1,632,761,670 163,276,170 1,796,037,840
-씨앤에스 매출 20250430-41000026-000f9m47 20260222 웹케시(주) 웹케시씨앤에스 주식회사 1,516,774,542 151,677,456 1,668,451,998
-씨앤에스 매출 20250731-41000026-000fitoy 20260219 웹케시(주) 웹케시씨앤에스 주식회사 1,423,581,654 142,358,160 1,565,939,814
-씨앤에스 매출 20250731-41000026-000fitq9 20260218 웹케시(주) 웹케시씨앤에스 주식회사 1,357,991,634 135,799,158 1,493,790,792
-씨앤에스 매출 20251231-41000026-000fys61 20260216 웹케시(주) 웹케시씨앤에스 주식회사 1,084,241,076 108,424,104 1,192,665,180
-씨앤에스 매출 20241130-41000026-000eudvz 20260215 비즈플레이 주식회사 웹케시씨앤에스 주식회사 448,860,000 44,886,000 493,746,000
-씨앤에스 매출 20250131-41000026-000f0s9g 20260224 비즈플레이 주식회사 웹케시씨앤에스 주식회사 403,980,000 40,398,000 444,378,000
-씨앤에스 매출 20250331-41000026-000f69cv 20260214 비즈플레이 주식회사 웹케시씨앤에스 주식회사 403,980,000 40,398,000 444,378,000
-씨앤에스 매입 20250306-41000026-000f3dbw 20260216 웹케시씨앤에스 주식회사 인터프로셀(주) 182,371,716 18,237,174 200,608,890
-씨앤에스 매입 20251001-10251010-95651369 20260224 웹케시씨앤에스 위피앤씨 주식회사 163,320,000 16,332,000 179,652,000
-웹케시테스트 매입 20251101-10251106-31410617 20260215 웹케시씨앤에스 주식회사 웹케시테스트 0 0 0`,
-"신탁계좌 만기일": `신탁계좌 만기일 현황
-회사명 계좌구분 은행명 계좌번호 통화코드 총잔고 만기일자
-(주)쿠콘글로벌지점 신탁 농협은행 0900155151515 KRW 0
-(주)쿠콘글로벌지점 신탁 농협은행 5646456456456 KRW 0
-씨앤에스 신탁 농협은행 03201052355522 KRW 0 20251209
-씨앤에스 신탁 농협은행 090455222111111 KRW 0
-씨앤에스 신탁 농협은행 11122233444568 KRW 0 2025-12-22`
-};
-
-let lastQ='',busy=false,procOpen=false;
-
-function sel(el,q){
+// ════════ 질문 목록 ════════
+function renderQList(filter){
+  var list=document.getElementById('qList');list.innerHTML='';
+  Q_LABELS.forEach(function(q){
+    if(filter&&q.toLowerCase().indexOf(filter.toLowerCase())<0)return;
+    var d=document.createElement('div');
+    d.className='q-item'+(session.currentQ===q?' active':'');
+    d.textContent=q;d.onclick=function(){selectQ(q);};
+    list.appendChild(d);
+  });
+}
+function selectQ(q){
   if(busy)return;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  lastQ=q; run(q);
+  if(session.currentQ!==q){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};clearChat();}
+  session.currentQ=q;renderQList(document.getElementById('qSrch').value);
+  startNewQ(q);
 }
 
-function setState(s){
-  document.getElementById('stateEmpty').style.display   = s==='empty'   ? 'flex'  : 'none';
-  document.getElementById('stateLoading').style.display = s==='loading' ? 'flex'  : 'none';
-  document.getElementById('stateError').style.display   = s==='error'   ? 'flex'  : 'none';
-  document.getElementById('resultArea').style.display   = s==='result'  ? 'block' : 'none';
-}
-
-// ── Anthropic API 직접 호출 (서버 없음) ──
-async function callClaude(maskedData, question) {
-  var key = getKey();
-  if (!key) { openKeyModal(); throw new Error('API 키 없음'); }
-
-  var sysPrompt = `당신은 기업 재무담당 임원(CFO)을 보좌하는 시니어 금융 AI 애널리스트입니다.
-브랜치Q 실시간 금융 데이터를 받아 **즉시 경영 의사결정에 활용할 수 있는 수준**의 분석 리포트를 작성합니다.
-
-## 절대 규칙
-- [COMPANY_001], [ACCOUNT_001], [CARD_001] 등 토큰은 보안처리된 실제값입니다. **절대 수정하지 마세요.**
-- 인사말, 안내문 없이 리포트 본문으로 바로 시작하세요.
-
-## 리포트 작성 철학
-단순히 데이터를 나열하지 말고, **데이터를 해석**하세요.
-- 숫자가 무엇을 의미하는지 설명하세요
-- 패턴, 이상징후, 주목할 변화를 찾아내세요
-- 경영진이 "그래서 어떻게 해야 하나?"를 알 수 있도록 인사이트를 제공하세요
-
-## 리포트 구조 (마크다운 필수)
-
-### # 핵심 요약
-한 눈에 파악할 수 있는 2~4줄 요약. 가장 중요한 수치는 **굵게**.
-> blockquote로 특별히 주의가 필요한 사항 강조
-
-### ## 데이터 분석
-
-[자금현황/잔액 데이터]
-- 회사별 자산구조 표 (수시/예적금/대출 구분)
-- KRW 환산 총자산 규모 분석
-- 유동성 비율 코멘트
-
-[거래내역 데이터]
-- 거래 상세 표 (일자 | 시간 | 적요/비고 | 입금 | 출금 | 잔액)
-- 이상거래 여부 (심야시간대, 반복거래 등)
-
-[카드 사용 데이터]
-- 카드 사용 상세 표, 업종별 분류, 대형 지출 분석
-
-[환율 데이터]
-- 주요 통화 현황 표, 전일 대비 변동 분석
-
-[대출 데이터]
-- 대출 현황 표, 총 부채 규모 및 구성
-
-### ## 주목 포인트
-- 재무 리스크 요인
-- 담당자가 확인해야 할 사항
-
-## 표기 규칙
-- 금액: 1,234,567원, 대규모는 억원 병기
-- 날짜: 20260313 → 2026년 03월 13일
-- 표는 반드시 마크다운 파이프 테이블 형식
-- 0원 잔액 계좌는 "(잔액 없음)" 으로 표시`;
-
-  var userMsg = '질문: ' + question + '\n\n브랜치Q 원본 데이터:\n' + maskedData + '\n\nCFO 보고용 정밀 분석 리포트를 작성해주세요.';
-
-  var resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2500,
-      system: sysPrompt,
-      messages: [{ role: 'user', content: userMsg }]
-    })
-  });
-
-  if (!resp.ok) {
-    var err = await resp.json();
-    var msg = (err.error && err.error.message) || resp.statusText;
-    if (resp.status === 401) throw new Error('API 키가 올바르지 않습니다');
-    throw new Error('API 오류: ' + msg);
-  }
-
-  var data = await resp.json();
-  return data.content[0].text;
-}
-
-
-// 브라우저 측 간이 마스킹 (시각화 전용 - 실제 보안은 서버에서 처리)
+// ════════ 마스킹 ════════
 function vizMask(raw){
-  const tm={};
-  let text=raw;
-  let cntCo=0, cntAc=0, cntCa=0;
-
-  // 카드번호: 4-4-4-4 하이픈 or 연속 16자리
-  text=text.replace(/(\d{4}[-]\d{4}[-]\d{4}[-]\d{4})|(\d{16})/g, function(m){
-    cntCa++;
-    var tok='[CARD_'+String(cntCa).padStart(3,'0')+']';
-    tm[tok]={val:m,type:'ca'};
-    return tok;
+  var tm={},text=raw,cCo=0,cAc=0,cCa=0;
+  text=text.replace(/(\d{4}[-]\d{4}[-]\d{4}[-]\d{4})|(\d{16})/g,function(m){
+    cCa++;var t='[CARD_'+String(cCa).padStart(3,'0')+']';tm[t]={val:m,type:'ca'};return t;
   });
-
-  // 계좌번호: 별표형, 하이픈형(XXX-XX-XXXXXXX), 8자리이상 연속 (날짜 제외)
-  text=text.replace(/(\d{2,}[*]{2}\d{2,}[*]{2}\d+)|(\d{3,4}-\d{2,3}-\d{6,9})|(\d{3,4}-\d{6,9})|(\d{8,})/g, function(m){
-    // 날짜 패턴(20YYMMDD) 제외
-    if(/^20\d{2}[01]\d[0-3]\d$/.test(m)) return m;
-    cntAc++;
-    var tok='[ACCOUNT_'+String(cntAc).padStart(3,'0')+']';
-    tm[tok]={val:m,type:'ac'};
-    return tok;
+  text=text.replace(/(\d{2,}[*]{2}\d{2,}[*]{2}\d+)|(\d{3,4}-\d{2,3}-\d{6,9})|(\d{3,4}-\d{6,9})|(\d{8,})/g,function(m){
+    if(/^20\d{2}[01]\d[0-3]\d$/.test(m))return m;
+    cAc++;var t='[ACCOUNT_'+String(cAc).padStart(3,'0')+']';tm[t]={val:m,type:'ac'};return t;
   });
-
-  // 회사명 (샘플 데이터 기준 하드코딩)
-  var cos=['(주)쿠콘글로벌지점','주식회사 쿠콘','AI 테스용사업장','웹케시씨앤에스','웹케시테스트','법케시사업장','경리나라','씨앤에스'];
-  cos.forEach(function(name){
-    if(text.indexOf(name)>=0){
-      cntCo++;
-      var tok='[COMPANY_'+String(cntCo).padStart(3,'0')+']';
-      tm[tok]={val:name,type:'co'};
-      text=text.split(name).join(tok);
-    }
+  ['(주)쿠콘글로벌지점','주식회사 쿠콘','AI 테스용사업장','웹케시씨앤에스','웹케시테스트','법케시사업장','경리나라','씨앤에스'].forEach(function(n){
+    if(text.indexOf(n)>=0){cCo++;var t='[COMPANY_'+String(cCo).padStart(3,'0')+']';tm[t]={val:n,type:'co'};text=text.split(n).join(t);}
   });
-
-  return {text:text, tm:tm, cnt:{co:cntCo,ac:cntAc,ca:cntCa}};
+  return{text:text,tm:tm,cnt:{co:cCo,ac:cAc,ca:cCa}};
 }
-
-// 토큰을 색상 span으로 변환
-function colorize(line, tm){
+function colorize(line,tm){
   var s=line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  Object.keys(tm).forEach(function(tok){
-    var cls = tm[tok].type==='co'?'t-co': tm[tok].type==='ac'?'t-ac':'t-ca';
-    s=s.split(tok).join('<span class="'+cls+'">'+tok+'</span>');
+  Object.keys(tm).forEach(function(t){
+    var c=tm[t].type==='co'?'t-co':tm[t].type==='ac'?'t-ac':'t-ca';
+    s=s.split(t).join('<span class="'+c+'">'+t+'</span>');
   });
   return '<span class="t-pl">'+s+'</span>';
 }
+function unmask(text,tm){var o=text;Object.keys(tm).forEach(function(t){o=o.split(t).join(tm[t].val);});return o;}
 
-async function run(q){
-  if(!getKey()){openKeyModal();return;}
-  var raw=SD[q];
-  if(!raw){showErr('샘플 데이터 없음');return;}
-  busy=true;
+// ════════ API ════════
+var SYS=`당신은 CFO를 보좌하는 시니어 금융 AI 애널리스트입니다.
+## 절대 규칙
+- [COMPANY_001],[ACCOUNT_001],[CARD_001] 등 토큰은 절대 수정하지 마세요.
+- 인사말 없이 바로 리포트 본문으로 시작하세요.
+## 리포트 구조 (마크다운)
+# 핵심 요약 (중요 수치 **굵게**, > 주의사항)
+## 데이터 분석 (표, 해석, 패턴)
+## 주목 포인트 (리스크, 확인사항)
+## 표기: 금액 1,234,567원 / 날짜 20260313→2026년 03월 13일 / 표는 마크다운 파이프 테이블`;
 
-  ['ps1','ps2','ps3','ps4'].forEach(function(id){document.getElementById(id).className='ps';});
-  document.getElementById('procPanel').classList.add('hidden');
-  procOpen=false;
-  document.getElementById('procBody').classList.remove('open');
-  document.getElementById('chevron').classList.remove('open');
-  document.getElementById('procToggleBtn').classList.remove('open');
+var INTENT_SYS=`금융 추가질문의 의도를 판단합니다.
+REUSE: 기존 조회 데이터로 충분한 질문 (계산,비교,분석 등)
+REFETCH: 새 실시간 데이터가 필요한 질문 (최신거래,오늘환율 등)
+반드시 JSON만 반환: {"intent":"REUSE"} 또는 {"intent":"REFETCH","reason":"이유"}`;
 
-  setState('loading');
-  document.getElementById('resBadge').textContent='분석 중...';
-  document.getElementById('vizBody').innerHTML='';
-  document.getElementById('cntCo').textContent='0';
-  document.getElementById('cntAc').textContent='0';
-  document.getElementById('cntCa').textContent='0';
-  document.getElementById('vizPhase').innerHTML='<span>STEP 1</span> · 민감정보 마스킹 중...';
-  document.getElementById('vizWait').style.visibility='hidden';
-  document.getElementById('ps1').className='ps active';
+async function callAPI(messages,sys){
+  var k=getKey();if(!k)throw new Error('API 키 없음');
+  var r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2500,system:sys,messages:messages})
+  });
+  if(!r.ok){var e=await r.json();throw new Error(r.status===401?'API 키가 올바르지 않습니다':'API 오류: '+((e.error&&e.error.message)||r.statusText));}
+  var d=await r.json();return d.content[0].text;
+}
+async function judgeIntent(q){
+  try{
+    var raw=await callAPI([{role:'user',content:'추가질문: '+q}],INTENT_SYS);
+    return JSON.parse(raw.replace(/```json|```/g,'').trim());
+  }catch(e){return{intent:'REUSE'};}
+}
 
-  // STEP 1: 마스킹 시각화
-  var result=vizMask(raw);
-  var tm=result.tm;
+// ════════ UI 헬퍼 ════════
+function clearChat(){
+  document.getElementById('chatArea').innerHTML='<div class="chat-empty"><div class="chat-empty-ico"><svg viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div><div class="chat-empty-t">질문을 선택하거나 입력하세요</div><div class="chat-empty-d">왼쪽 목록에서 선택하거나<br>아래 입력창에 직접 질문하세요</div></div>';
+  turnCnt=0;
+}
+function removeEmpty(){var e=document.querySelector('.chat-empty');if(e)e.remove();}
+function scrollC(){var a=document.getElementById('chatArea');a.scrollTop=a.scrollHeight;}
+function setBusy(b){document.getElementById('sendBtn').disabled=b;document.getElementById('chatTa').disabled=b;}
+function resetPipe(){['ps1','ps2','ps3','ps4'].forEach(function(id){document.getElementById(id).className='ps';});}
+function pipeA(id){document.getElementById(id).className='ps active';}
+function pipeD(id){document.getElementById(id).className='ps done';}
+
+function addBubble(q,isFollow){
+  removeEmpty();
+  var d=document.createElement('div');
+  d.className='chat-q'+(isFollow?' followup':'');
+  d.textContent=q;
+  document.getElementById('chatArea').appendChild(d);
+  scrollC();
+}
+function addIntentBadge(intent){
+  var d=document.createElement('div');
+  d.innerHTML=intent==='REUSE'
+    ?'<div class="intent-badge reuse">✓ 기존 데이터 재사용 · DB 재조회 불필요</div>'
+    :'<div class="intent-badge refetch">⚡ 실시간 데이터 필요 · 브랜치Q 재조회</div>';
+  document.getElementById('chatArea').appendChild(d);scrollC();
+}
+function addLoadingInline(msg){
+  var d=document.createElement('div');d.className='loading-inline';
+  d.innerHTML='<div class="spin-sm"></div>'+msg;
+  document.getElementById('chatArea').appendChild(d);scrollC();return d;
+}
+function addErr(msg){
+  var d=document.createElement('div');d.className='err-msg';d.textContent='오류: '+msg;
+  document.getElementById('chatArea').appendChild(d);scrollC();
+}
+
+function addTerminal(){
+  removeEmpty();
+  var b=document.createElement('div');b.className='terminal-box';
+  b.innerHTML='<div class="terminal-hdr"><div class="terminal-title"><div class="t-blink"></div>SecureAgent 보안 처리 중</div><div class="terminal-phase" id="tPhase"><b>STEP 1</b> · 마스킹 중...</div></div><div class="terminal-body" id="tBody"></div><div class="terminal-footer"><div class="mask-stat"><div class="msd co"></div><span class="msv" id="tCo">0</span><span class="msl">회사명</span></div><div class="mask-stat"><div class="msd ac"></div><span class="msv" id="tAc">0</span><span class="msl">계좌번호</span></div><div class="mask-stat"><div class="msd ca"></div><span class="msv" id="tCa">0</span><span class="msl">카드번호</span></div><div class="mask-wait" id="tWait" style="visibility:hidden">AI 분석 중<span class="mask-dots"><span>.</span><span>.</span><span>.</span></span></div></div>';
+  document.getElementById('chatArea').appendChild(b);scrollC();return b;
+}
+
+function addReportCard(q,answer,tm,mc,tid){
+  var n=new Date(),ts=n.getFullYear()+'.'+p2(n.getMonth()+1)+'.'+p2(n.getDate())+' '+p2(n.getHours())+':'+p2(n.getMinutes());
+  var tags='';
+  if(mc.co)tags+='<span class="rtag co">회사명 '+mc.co+'건</span>';
+  if(mc.ac)tags+='<span class="rtag ac">계좌 '+mc.ac+'건</span>';
+  if(mc.ca)tags+='<span class="rtag ca">카드 '+mc.ca+'건</span>';
+  var c=document.createElement('div');c.className='report-card';
+  c.innerHTML='<div class="report-hdr"><div class="ai-mark"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">'+esc(q)+'</div></div><div class="ai-ts">'+ts+'</div></div>'+(tags?'<div class="report-tags">'+tags+'</div>':'')+'<div class="report-body"><div class="md-content" id="rc'+tid+'"></div></div><div class="proc-panel hidden" id="pp'+tid+'"><div class="proc-toggle" id="pt'+tid+'" onclick="toggleProc('+tid+')"><div class="proc-toggle-l"><span class="proc-lbl">생성 과정</span><span class="proc-badge" id="pb_cnt'+tid+'">0건</span></div><svg class="chevron" id="chev'+tid+'" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></div><div class="proc-body" id="pbd'+tid+'"><div class="proc-section"><div class="proc-sec-t mask"><span class="sp">STEP 1</span>마스킹</div><table class="proc-tbl"><thead><tr><th>유형</th><th>원본</th><th></th><th>토큰</th></tr></thead><tbody id="pm'+tid+'"></tbody></table></div><div class="proc-section"><div class="proc-sec-t unmask"><span class="sp">STEP 3</span>역마스킹</div><table class="proc-tbl"><thead><tr><th>유형</th><th>토큰</th><th></th><th>복원</th></tr></thead><tbody id="pu'+tid+'"></tbody></table></div></div></div>';
+  document.getElementById('chatArea').appendChild(c);
+  document.getElementById('rc'+tid).innerHTML=renderMd(answer);
+  if(tm&&Object.keys(tm).length>0){
+    var mr='',ur='';
+    Object.keys(tm).forEach(function(tok){
+      var i=tm[tok],cl=i.type==='co'?'co':i.type==='ac'?'ac':'ca';
+      var lb={co:'회사명',ac:'계좌번호',ca:'카드번호'}[cl];
+      mr+='<tr><td><span class="tok '+cl+'">'+lb+'</span></td><td><span class="realv">'+esc(i.val)+'</span></td><td class="tarr">→</td><td><span class="tok '+cl+'">'+esc(tok)+'</span></td></tr>';
+      ur+='<tr><td><span class="tok '+cl+'">'+lb+'</span></td><td><span class="tok '+cl+'">'+esc(tok)+'</span></td><td class="tarr">→</td><td><span class="realv">'+esc(i.val)+'</span></td></tr>';
+    });
+    document.getElementById('pm'+tid).innerHTML=mr;
+    document.getElementById('pu'+tid).innerHTML=ur;
+    document.getElementById('pb_cnt'+tid).textContent=Object.keys(tm).length+'건';
+    document.getElementById('pp'+tid).classList.remove('hidden');
+  }
+  scrollC();
+}
+function toggleProc(id){
+  var b=document.getElementById('pbd'+id),ch=document.getElementById('chev'+id),t=document.getElementById('pt'+id);
+  var o=b.classList.toggle('open');ch.classList.toggle('open',o);t.classList.toggle('open',o);
+}
+
+// ════════ 첫 질문 (마스킹 시각화) ════════
+async function startNewQ(q){
+  if(busy)return;if(!getKey()){openKeyModal();return;}
+  var raw=SD[q];if(!raw){addErr('샘플 데이터 없음');return;}
+  busy=true;setBusy(true);resetPipe();turnCnt++;var tid=turnCnt;
+  addBubble(q,false);
+  var terminal=addTerminal();
+  pipeA('ps1');
+
+  var r=vizMask(raw);
+  session={raw:raw,maskedRaw:r.text,tm:r.tm,history:[],currentQ:q};
   var lines=raw.split('\n').filter(function(l){return l.trim();});
-  var maskedLines=result.text.split('\n').filter(function(l){return l.trim();});
-  var vizBody=document.getElementById('vizBody');
-  var runCo=0, runAc=0, runCa=0;
+  var mlines=r.text.split('\n').filter(function(l){return l.trim();});
+  var tBody=document.getElementById('tBody');
+  var rCo=0,rAc=0,rCa=0;
 
   for(var i=0;i<lines.length;i++){
-    var div=document.createElement('div');
-    div.className='mask-line';
-    div.innerHTML=colorize(maskedLines[i]||lines[i], tm);
-    vizBody.appendChild(div);
-    await sleep(8);
-    div.classList.add('show');
-    var ml=maskedLines[i]||'';
-    var fCo=0,fAc=0,fCa=0;
-    Object.keys(tm).forEach(function(tok){
-      if(ml.indexOf(tok)>=0){
-        if(tm[tok].type==='co')fCo++;
-        else if(tm[tok].type==='ac')fAc++;
-        else fCa++;
-      }
+    var dv=document.createElement('div');dv.className='mask-line';
+    dv.innerHTML=colorize(mlines[i]||lines[i],r.tm);
+    tBody.appendChild(dv);await sleep(8);dv.classList.add('show');
+    var ml=mlines[i]||'';var fC=0,fA=0,fCa=0;
+    Object.keys(r.tm).forEach(function(t){
+      if(ml.indexOf(t)>=0){if(r.tm[t].type==='co')fC++;else if(r.tm[t].type==='ac')fA++;else fCa++;}
     });
-    if(fCo||fAc||fCa){
-      runCo+=fCo;runAc+=fAc;runCa+=fCa;
-      document.getElementById('cntCo').textContent=String(runCo);
-      document.getElementById('cntAc').textContent=String(runAc);
-      document.getElementById('cntCa').textContent=String(runCa);
-      await sleep(80);
-    } else { await sleep(50); }
+    if(fC||fA||fCa){rCo+=fC;rAc+=fA;rCa+=fCa;
+      document.getElementById('tCo').textContent=String(rCo);
+      document.getElementById('tAc').textContent=String(rAc);
+      document.getElementById('tCa').textContent=String(rCa);
+      await sleep(70);
+    }else{await sleep(40);}
+    scrollC();
   }
+  pipeD('ps1');await sleep(120);
 
-  document.getElementById('ps1').className='ps done';
-  await sleep(150);
+  var s1=document.createElement('div');s1.className='mask-line';s1.innerHTML='<span class="t-sep">────────────────────────────────</span>';
+  tBody.appendChild(s1);await sleep(20);s1.classList.add('show');
+  var sv=document.createElement('div');sv.className='mask-line';
+  sv.innerHTML='<span class="t-send">▶ 마스킹 완료 (CO:'+rCo+' AC:'+rAc+' CA:'+rCa+') → Claude AI 전송...</span>';
+  tBody.appendChild(sv);await sleep(20);sv.classList.add('show');
 
-  var sep1=document.createElement('div');
-  sep1.className='mask-line mask-sep';
-  sep1.innerHTML='<span class="t-sep">────────────────────────────────────────</span>';
-  vizBody.appendChild(sep1); await sleep(20); sep1.classList.add('show');
-
-  var sendDiv=document.createElement('div');
-  sendDiv.className='mask-line';
-  sendDiv.innerHTML='<span class="t-send">▶ 마스킹 완료 (COMPANY:'+runCo+' / ACCOUNT:'+runAc+' / CARD:'+runCa+') → Claude AI 전송 중...</span>';
-  vizBody.appendChild(sendDiv); await sleep(20); sendDiv.classList.add('show');
-
-  document.getElementById('vizPhase').innerHTML='<span>STEP 2</span> · Claude AI 분석 중...';
-  document.getElementById('vizWait').style.visibility='visible';
-  document.getElementById('ps2').className='ps active';
+  document.getElementById('tPhase').innerHTML='<b>STEP 2</b> · Claude AI 분석 중...';
+  document.getElementById('tWait').style.visibility='visible';
+  pipeA('ps2');
 
   try{
-    // STEP 2: Anthropic API 직접 호출
-    var llmAnswer = await callClaude(result.text, q);
+    var uMsg='질문: '+q+'\n\n데이터:\n'+r.text;
+    var ans=await callAPI([{role:'user',content:uMsg}],SYS);
+    session.history.push({role:'user',content:uMsg});
+    session.history.push({role:'assistant',content:ans});
 
-    document.getElementById('ps2').className='ps done';
-    document.getElementById('vizWait').style.visibility='hidden';
+    pipeD('ps2');document.getElementById('tWait').style.visibility='hidden';
+    document.getElementById('tPhase').innerHTML='<b>STEP 3</b> · 역마스킹 중...';
+    pipeA('ps3');
 
-    // STEP 3: 역마스킹 시각화
-    document.getElementById('vizPhase').innerHTML='<span>STEP 3</span> · 역마스킹 복원 중...';
-    document.getElementById('ps3').className='ps active';
+    var s2=document.createElement('div');s2.className='mask-line';s2.innerHTML='<span class="t-sep">────────────────────────────────</span>';
+    tBody.appendChild(s2);await sleep(20);s2.classList.add('show');
+    var rv=document.createElement('div');rv.className='mask-line';rv.innerHTML='<span class="t-recv">◀ 응답 수신 → 역마스킹 시작...</span>';
+    tBody.appendChild(rv);await sleep(20);rv.classList.add('show');await sleep(180);
 
-    var sep2=document.createElement('div');
-    sep2.className='mask-line mask-sep';
-    sep2.innerHTML='<span class="t-sep">────────────────────────────────────────</span>';
-    vizBody.appendChild(sep2); await sleep(20); sep2.classList.add('show');
-
-    var recvDiv=document.createElement('div');
-    recvDiv.className='mask-line';
-    recvDiv.innerHTML='<span class="t-recv">◀ Claude AI 응답 수신 → 역마스킹 복원 시작...</span>';
-    vizBody.appendChild(recvDiv); await sleep(20); recvDiv.classList.add('show');
-    await sleep(200);
-
-    // 역마스킹 실행 + 시각화
-    var finalAnswer = llmAnswer;
-    var tokKeys = Object.keys(tm);
-    var maskedCount = {COMPANY:0, ACCOUNT:0, CARD:0};
-
-    for(var j=0;j<tokKeys.length;j++){
-      var tok=tokKeys[j];
-      var realVal=tm[tok].val;
-      var tokType=tm[tok].type;
-      var cls=tokType==='co'?'t-co':tokType==='ac'?'t-ac':'t-ca';
-
-      // 카운트
-      if(tokType==='co') maskedCount.COMPANY++;
-      else if(tokType==='ac') maskedCount.ACCOUNT++;
-      else maskedCount.CARD++;
-
-      // 역마스킹
-      finalAnswer = finalAnswer.split(tok).join(realVal);
-
-      var rLine=document.createElement('div');
-      rLine.className='mask-line';
-      rLine.innerHTML=
-        '<span class="t-arrow">  </span>'+
-        '<span class="'+cls+'">'+esc(tok)+'</span>'+
-        '<span class="t-arrow"> → </span>'+
-        '<span class="t-real">'+esc(realVal)+'</span>';
-      vizBody.appendChild(rLine);
-      await sleep(20); rLine.classList.add('show');
-      await sleep(100);
+    var final=ans;
+    var tkeys=Object.keys(r.tm);
+    for(var j=0;j<tkeys.length;j++){
+      var tok=tkeys[j],info=r.tm[tok];
+      var cls2=info.type==='co'?'t-co':info.type==='ac'?'t-ac':'t-ca';
+      final=final.split(tok).join(info.val);
+      var rl=document.createElement('div');rl.className='mask-line';
+      rl.innerHTML='<span class="t-arrow">  </span><span class="'+cls2+'">'+esc(tok)+'</span><span class="t-arrow"> → </span><span class="t-real">'+esc(info.val)+'</span>';
+      tBody.appendChild(rl);await sleep(20);rl.classList.add('show');await sleep(80);scrollC();
     }
+    var dn=document.createElement('div');dn.className='mask-line';dn.innerHTML='<span class="t-done">✓ 역마스킹 완료</span>';
+    tBody.appendChild(dn);await sleep(20);dn.classList.add('show');await sleep(350);
+    pipeD('ps3');pipeD('ps4');
+    document.getElementById('tPhase').innerHTML='<b style="color:#22D3A5">✓ DONE</b>';
+    await sleep(280);terminal.remove();
+    addReportCard(q,final,r.tm,{co:rCo,ac:rAc,ca:rCa},tid);
+    document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
+  }catch(e){terminal.remove();addErr(e.message);resetPipe();}
+  finally{busy=false;setBusy(false);}
+}
 
-    var doneDiv=document.createElement('div');
-    doneDiv.className='mask-line';
-    doneDiv.innerHTML='<span class="t-done">✓ 역마스킹 완료 → 리포트 생성 완료</span>';
-    vizBody.appendChild(doneDiv); await sleep(20); doneDiv.classList.add('show');
-    await sleep(400);
+// ════════ 추가 질문 (방법 C) ════════
+async function sendFollowup(q){
+  if(busy)return;if(!getKey()){openKeyModal();return;}
+  if(!session.raw){addErr('먼저 기본 질문을 선택해주세요');return;}
+  busy=true;setBusy(true);turnCnt++;var tid=turnCnt;
+  addBubble(q,true);
+  var ld=addLoadingInline('의도 분석 중...');
 
-    document.getElementById('ps3').className='ps done';
-    document.getElementById('ps4').className='ps done';
-    document.getElementById('vizPhase').innerHTML='<span style="color:#22D3A5">✓ DONE</span> · 처리 완료';
+  try{
+    var intent=await judgeIntent(q);
+    ld.remove();addIntentBadge(intent.intent);
 
-    // token_map 형식으로 변환 (생성과정 패널용)
-    var tokenMap = {};
-    Object.keys(tm).forEach(function(tok){
-      tokenMap[tok] = tm[tok].val;
-    });
+    if(intent.intent==='REFETCH'){
+      var rc=document.createElement('div');rc.className='report-card';
+      rc.innerHTML='<div class="report-hdr"><div class="ai-mark"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">실시간 데이터 필요</div></div></div><div class="report-body"><div class="md-content"><blockquote>실시간 데이터 조회가 필요한 질문입니다.<br>실서비스에서는 브랜치Q를 통해 최신 데이터를 재조회합니다.<br><strong>사유: '+(intent.reason||'최신 데이터 필요')+'</strong></blockquote></div></div>';
+      document.getElementById('chatArea').appendChild(rc);
+    }else{
+      pipeA('ps2');
+      var ld2=addLoadingInline('기존 데이터 기반 분석 중...');
+      var msgs=session.history.slice();msgs.push({role:'user',content:q});
+      var ans=await callAPI(msgs,SYS);
+      session.history.push({role:'user',content:q});session.history.push({role:'assistant',content:ans});
+      pipeD('ps2');pipeD('ps3');pipeD('ps4');
+      ld2.remove();
+      var final=unmask(ans,session.tm);
+      addReportCard(q,final,session.tm,{co:0,ac:0,ca:0},tid);
+    }
+    scrollC();
+  }catch(e){if(ld.parentNode)ld.remove();addErr(e.message);resetPipe();}
+  finally{busy=false;setBusy(false);}
+}
 
-    await sleep(500);
-    showResult(q, {
-      answer: finalAnswer,
-      masked_count: maskedCount,
-      token_map: tokenMap
-    });
-
-  }catch(e){
-    showErr(e.message || '오류가 발생했습니다');
-  }finally{
-    busy=false;
+// ════════ 입력 처리 ════════
+function sendChat(){
+  var ta=document.getElementById('chatTa'),q=ta.value.trim();
+  if(!q||busy)return;
+  ta.value='';autoResize(ta);
+  if(SD[q]){
+    session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};clearChat();renderQList('');startNewQ(q);
+  }else if(session.raw){
+    sendFollowup(q);
+  }else{
+    // SD에 없는 첫 질문 → 유사 질문 찾기
+    var best=null,bs=0;
+    Q_LABELS.forEach(function(l){var s=0;q.split('').forEach(function(c){if(l.indexOf(c)>=0)s++;});if(s>bs){bs=s;best=l;}});
+    if(best&&bs>3){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:best};clearChat();renderQList('');startNewQ(best);}
+    else{addErr('관련 데이터를 찾을 수 없습니다. 왼쪽 목록에서 질문을 선택해주세요.');}
   }
 }
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
 
-
-function retry(){if(lastQ)run(lastQ);}
-
-function showResult(q,d){
-  // 질문 메타
-  const mc=d.masked_count||{};
-  let tags='';
-  if(mc.COMPANY) tags+=`<span class="mtag co">회사명 ${mc.COMPANY}건</span>`;
-  if(mc.ACCOUNT) tags+=`<span class="mtag ac">계좌 ${mc.ACCOUNT}건</span>`;
-  if(mc.CARD)    tags+=`<span class="mtag ca">카드 ${mc.CARD}건</span>`;
-  document.getElementById('mtags').innerHTML=tags;
-  document.getElementById('resQ').textContent=q;
-
-  // 시각
-  const n=new Date();
-  document.getElementById('aiTs').innerHTML=
-    `${n.getFullYear()}.${p2(n.getMonth()+1)}.${p2(n.getDate())}<br>${p2(n.getHours())}:${p2(n.getMinutes())}`;
-
-  // 보고서
-  document.getElementById('reportContent').innerHTML=renderMd(d.answer);
-
-  // 하단 라벨
-  const tot=Object.values(mc).reduce((a,b)=>a+b,0);
-  document.getElementById('resFootL').textContent=
-    tot>0?`보안 처리 ${tot}건 완료`:'보안 처리 완료';
-
-  document.getElementById('resBadge').textContent='분석 완료';
-
-  // 결과 영역 표시
-  setState('result');
-
-  // ★ 생성과정: result-area가 이미 block이므로 hidden만 제거하면 바로 보임
-  const tm=d.token_map||{};
-  buildProc(tm);
-  document.getElementById('procCnt').textContent=`${Object.keys(tm).length}건`;
-  document.getElementById('procPanel').classList.remove('hidden');
-}
-
-// 마크다운 렌더러
+// ════════ 마크다운 ════════
 function renderMd(t){
   if(!t)return'';
-  t=t.replace(/((?:\|[^\n]+\|\n?)+)/g,blk=>{
-    const lines=blk.trim().split('\n').filter(l=>l.trim()&&l.includes('|'));
+  t=t.replace(/((?:\|[^\n]+\|\n?)+)/g,function(blk){
+    var lines=blk.trim().split('\n').filter(function(l){return l.trim()&&l.includes('|');});
     if(lines.length<2)return blk;
-    let html='<div class="tbl-outer"><table>';
-    let headDone=false;
-    lines.forEach((line,i)=>{
-      const isSep=/^\|[\s\-|:]+\|$/.test(line.trim());
-      if(isSep){headDone=true;return;}
-      const cells=line.split('|').slice(1,-1).map(c=>c.trim());
-      if(!headDone&&i===0){
-        html+=`<thead><tr>${cells.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
-      } else {
-        html+=`<tr>${cells.map(c=>`<td>${c}</td>`).join('')}</tr>`;
-      }
+    var html='<div class="tbl-wrap"><table>',hd=false;
+    lines.forEach(function(line,i){
+      if(/^\|[\s\-|:]+\|$/.test(line.trim())){hd=true;return;}
+      var cells=line.split('|').slice(1,-1).map(function(c){return c.trim();});
+      if(!hd&&i===0){html+='<thead><tr>'+cells.map(function(c){return'<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>';}
+      else{html+='<tr>'+cells.map(function(c){return'<td>'+c+'</td>';}).join('')+'</tr>';}
     });
-    html+='</tbody></table></div>';
-    return html;
+    return html+'</tbody></table></div>';
   });
   return t
     .replace(/^### (.+)$/gm,'<h3>$1</h3>')
     .replace(/^## (.+)$/gm,'<h2>$1</h2>')
     .replace(/^# (.+)$/gm,'<h1>$1</h1>')
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/_(.+?)_/g,'<em>$1</em>')
-    .replace(/^---$/gm,'<hr>')
     .replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>')
     .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>.*?<\/li>\n?)+/gs,m=>`<ul>${m}</ul>`)
+    .replace(/(<li>.*<\/li>\n?)+/gs,function(m){return'<ul>'+m+'</ul>';})
+    .replace(/---/g,'<hr>')
     .replace(/\n{2,}/g,'</p><p>')
     .replace(/\n/g,'<br>');
 }
 
-// 생성과정 테이블
-function buildProc(tm){
-  const tp=tok=>tok.startsWith('[COMPANY')?'co':tok.startsWith('[ACCOUNT')?'ac':'ca';
-  const tl=t=>({co:'회사명',ac:'계좌번호',ca:'카드번호'})[t];
-  let mr='',ur='';
-  for(const[tok,real]of Object.entries(tm)){
-    const t=tp(tok);
-    mr+=`<tr><td><span class="tpill ${t}">${tl(t)}</span></td><td><span class="realv">${esc(real)}</span></td><td class="tarr">→</td><td><span class="tok ${t}">${esc(tok)}</span></td></tr>`;
-    ur+=`<tr><td><span class="tpill ${t}">${tl(t)}</span></td><td><span class="tok ${t}">${esc(tok)}</span></td><td class="tarr">→</td><td><span class="realv">${esc(real)}</span></td></tr>`;
-  }
-  document.getElementById('maskRows').innerHTML=mr||'<tr><td colspan="4" style="color:var(--g400);text-align:center;padding:12px;">마스킹된 항목 없음</td></tr>';
-  document.getElementById('unmaskRows').innerHTML=ur||'<tr><td colspan="4" style="color:var(--g400);text-align:center;padding:12px;">복원된 항목 없음</td></tr>';
-}
-
-function toggleProc(){
-  procOpen=!procOpen;
-  document.getElementById('procBody').classList.toggle('open',procOpen);
-  document.getElementById('chevron').classList.toggle('open',procOpen);
-  document.getElementById('procToggleBtn').classList.toggle('open',procOpen);
-}
-
-// 파이프라인
-function resetPipe(){
-  ['ps1','ps2','ps3','ps4'].forEach(id=>document.getElementById(id).className='ps');
-  [['ls1','1'],['ls2','2'],['ls3','3']].forEach(([id,n])=>{
-    const el=document.getElementById(id);
-    el.className='l-step';
-    el.querySelector('.l-num').textContent=n;
-  });
-}
-async function anim(pid,lid,ms){
-  document.getElementById(pid).className='ps active';
-  document.getElementById(lid).className='l-step active';
-  await sleep(ms);
-  document.getElementById(pid).className='ps done';
-  const l=document.getElementById(lid);l.className='l-step done';
-  l.querySelector('.l-num').textContent='✓';
-}
-function setDone(id){document.getElementById(id).className='ps done';}
-
-function showErr(msg){
-  setState('error');
-  document.getElementById('errTxt').textContent='오류: '+msg;
-  document.getElementById('resBadge').textContent='오류';
-}
-
+// ════════ 유틸 ════════
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function p2(n){return String(n).padStart(2,'0');}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+
+// ════════ 다크/라이트 모드 ════════
+function applyTheme(dark){
+  if(dark){
+    document.documentElement.setAttribute('data-theme','dark');
+    document.getElementById('themeIco').textContent='☀️';
+    document.getElementById('themeTxt').textContent='라이트 모드';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('themeIco').textContent='🌙';
+    document.getElementById('themeTxt').textContent='다크 모드';
+  }
+  localStorage.setItem('sa_theme', dark?'dark':'light');
+}
+function toggleTheme(){
+  var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  applyTheme(!isDark);
+}
+
+// ════════ 초기화 ════════
+window.addEventListener('load',function(){
+  // 저장된 테마 적용
+  var saved=localStorage.getItem('sa_theme');
+  applyTheme(saved==='dark');
+  updateKeyBtn();renderQList('');
+  if(!getKey())openKeyModal();
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!document.getElementById('keyOverlay').classList.contains('hidden'))saveKey();
+});
 </script>
 </body>
 </html>
