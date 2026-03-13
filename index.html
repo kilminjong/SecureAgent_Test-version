@@ -170,9 +170,22 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
 .q-search-inp{flex:1;background:none;border:none;outline:none;font-size:12px;color:var(--txt-primary);font-family:inherit;}
 .q-search-inp::placeholder{color:var(--g400);}
 .q-list{flex:1;overflow-y:auto;padding:8px;}
-.q-item{padding:8px 10px;border-radius:7px;font-size:12px;font-weight:500;color:var(--q-item-color);cursor:pointer;transition:all .12s;margin-bottom:2px;line-height:1.4;}
 .q-item:hover{background:var(--q-item-hover);color:var(--blue);}
 .q-item.active{background:var(--blue);color:white;font-weight:700;}
+/* 질문 아이템 내부 구조 */
+.q-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;font-size:12px;font-weight:500;color:var(--q-item-color);cursor:pointer;transition:all .12s;margin-bottom:2px;line-height:1.4;}
+.q-item-txt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.q-item-del{flex-shrink:0;width:18px;height:18px;background:none;border:none;color:var(--txt-muted);font-size:15px;line-height:1;cursor:pointer;border-radius:4px;padding:0;display:none;font-family:inherit;}
+.q-item:hover .q-item-del{display:flex;align-items:center;justify-content:center;}
+.q-item.active .q-item-del{display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);}
+.q-item-del:hover{background:rgba(220,38,38,.15);color:#DC2626;}
+.q-item.active .q-item-del:hover{background:rgba(255,255,255,.2);color:white;}
+/* 빈 상태 */
+.q-empty-hint{padding:20px 14px;font-size:11px;color:var(--txt-muted);text-align:center;line-height:1.6;}
+/* 패널 하단 */
+.q-panel-footer{padding:8px 10px;border-top:1px solid var(--border2);flex-shrink:0;}
+.q-clear-btn{width:100%;padding:6px;background:none;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--txt-muted);cursor:pointer;font-family:inherit;transition:all .13s;}
+.q-clear-btn:hover{background:var(--redbg);border-color:var(--redbd);color:var(--red);}
 
 /* 오른쪽 콘텐츠 — 파이프라인(고정) + 채팅(스크롤) + 입력창(고정) */
 .main-content{
@@ -313,6 +326,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
 .tok.ca{background:var(--amberbg);color:var(--amber);}
 .tarr{color:var(--g300);text-align:center;font-size:12px;}
 .realv{font-weight:700;color:var(--txt-primary);font-size:11px;font-family:monospace;}
+
+/* 분석 페이지 입력창 위 칩 */
+.analysis-chips{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:10px;}
+.analysis-chips:empty{display:none;}
+.a-chip{padding:5px 12px;background:var(--bg-card2);border:1px solid var(--border);border-radius:16px;font-size:11px;font-weight:600;color:var(--txt-sub);cursor:pointer;transition:all .13s;white-space:nowrap;font-family:inherit;}
+.a-chip:hover{background:var(--bluebg);border-color:var(--bluebd);color:var(--blue);}
+.a-chip.active-chip{background:var(--blue);border-color:var(--blue);color:white;}
 
 /* 입력바 — 항상 하단 고정 */
 .input-bar{padding:12px 18px;background:var(--input-bar-bg);border-top:1px solid var(--border);flex-shrink:0;box-shadow:0 -4px 20px rgba(0,0,0,.06);transition:background .25s;}
@@ -512,13 +532,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
   <div class="analysis-layout">
     <div class="q-panel">
       <div class="q-panel-hdr">
-        <div class="q-panel-ttl">질문 목록</div>
+        <div class="q-panel-ttl">최근 질문</div>
         <div class="q-search">
           <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input class="q-search-inp" id="qSrch" placeholder="질문 검색..." oninput="renderQList(this.value)">
         </div>
       </div>
       <div class="q-list" id="qList"></div>
+      <div class="q-panel-footer">
+        <button class="q-clear-btn" onclick="if(confirm('질문 내역을 모두 삭제할까요?'))clearHistory()">전체 삭제</button>
+      </div>
     </div>
     <div class="main-content">
       <div class="pipe">
@@ -532,6 +555,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
       </div>
       <div class="chat-area" id="chatArea"></div>
       <div class="input-bar">
+        <div class="analysis-chips" id="analysisChips"></div>
         <div class="input-box">
           <textarea class="input-ta" id="chatTa" placeholder="추가 질문 입력... (Enter: 전송 / Shift+Enter: 줄바꿈)" rows="1"
             onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
@@ -610,8 +634,21 @@ function goAnalysis(firstQ){
   if(!getKey()){openKeyModal();return;}
   document.getElementById('pagMain').classList.remove('active');
   document.getElementById('pagAnalysis').classList.add('active');
-  updateKeyBtn();renderQList('');
-  if(firstQ) startNewQ(firstQ);
+  updateKeyBtn();renderQList('');renderAnalysisChips();
+  if(firstQ){
+    // 캐시 있으면 복원, 없으면 새로 실행
+    var cache=loadCache();
+    if(cache[firstQ]){
+      var saved=cache[firstQ];
+      session=Object.assign({},saved.sess);
+      session.currentQ=firstQ;
+      document.getElementById('chatArea').innerHTML=saved.chatHTML;
+      document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
+      renderQList('');renderAnalysisChips();scrollC();
+    }else{
+      startNewQ(firstQ);
+    }
+  }
 }
 function quickQ(q){if(!getKey()){openKeyModal();return;}goAnalysis(q);}
 function mainSearch(){
@@ -627,22 +664,134 @@ function mainSearch(){
   }
 }
 
-// ════════ 질문 목록 ════════
-function renderQList(filter){
-  var list=document.getElementById('qList');list.innerHTML='';
-  Q_LABELS.forEach(function(q){
-    if(filter&&q.toLowerCase().indexOf(filter.toLowerCase())<0)return;
-    var d=document.createElement('div');
-    d.className='q-item'+(session.currentQ===q?' active':'');
-    d.textContent=q;d.onclick=function(){selectQ(q);};
-    list.appendChild(d);
+// ════════ 분석 페이지 칩 렌더링 ════════
+function renderAnalysisChips(){
+  var wrap=document.getElementById('analysisChips');
+  if(!wrap)return;
+  wrap.innerHTML='';
+  Object.keys(SD).forEach(function(q){
+    var c=document.createElement('button');
+    c.className='a-chip'+(session.currentQ===q?' active-chip':'');
+    c.textContent=q;
+    c.onclick=function(){
+      if(busy)return;
+      var cache=loadCache();
+      if(cache[q]){
+        var saved=cache[q];
+        session=Object.assign({},saved.sess);
+        session.currentQ=q;
+        document.getElementById('chatArea').innerHTML=saved.chatHTML;
+        document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
+        renderQList(document.getElementById('qSrch').value);
+        renderAnalysisChips();
+        scrollC();
+      }else{
+        session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};
+        clearChat();
+        renderAnalysisChips();
+        startNewQ(q);
+      }
+    };
+    wrap.appendChild(c);
   });
 }
+
+// ════════ 질문 히스토리 (localStorage) ════════
+var HISTORY_KEY='sa_q_history';
+var CACHE_KEY='sa_q_cache'; // 질문별 대화 캐시
+
+function loadHistory(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}
+  catch(e){return[];}
+}
+function saveToHistory(q){
+  var list=loadHistory();
+  list=list.filter(function(item){return item!==q;});
+  list.unshift(q);
+  if(list.length>50)list=list.slice(0,50);
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(list));
+}
+function loadCache(){
+  try{return JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');}
+  catch(e){return{};}
+}
+function saveCache(q,chatHTML,sess){
+  var cache=loadCache();
+  cache[q]={chatHTML:chatHTML,sess:{raw:sess.raw,maskedRaw:sess.maskedRaw,tm:sess.tm,history:sess.history,currentQ:sess.currentQ}};
+  // 캐시 최대 30개
+  var keys=Object.keys(cache);
+  if(keys.length>30){delete cache[keys[keys.length-1]];}
+  localStorage.setItem(CACHE_KEY,JSON.stringify(cache));
+}
+function clearHistory(){
+  localStorage.removeItem(HISTORY_KEY);
+  localStorage.removeItem(CACHE_KEY);
+  renderQList('');
+}
+
+// ════════ 질문 목록 ════════
+function renderQList(filter){
+  var list=document.getElementById('qList');
+  list.innerHTML='';
+  var history=loadHistory();
+  var filtered=history.filter(function(q){
+    return !filter||q.toLowerCase().indexOf(filter.toLowerCase())>=0;
+  });
+  if(filtered.length===0){
+    var empty=document.createElement('div');
+    empty.className='q-empty-hint';
+    empty.textContent=filter?'검색 결과 없음':'아직 질문 내역이 없습니다';
+    list.appendChild(empty);
+    return;
+  }
+  filtered.forEach(function(q){
+    var cache=loadCache();
+    var hasCache=!!cache[q];
+    var row=document.createElement('div');
+    row.className='q-item'+(session.currentQ===q?' active':'');
+    var txt=document.createElement('span');
+    txt.className='q-item-txt';
+    txt.textContent=q;
+    txt.onclick=function(){selectQ(q);};
+    var del=document.createElement('button');
+    del.className='q-item-del';
+    del.innerHTML='×';
+    del.title='삭제';
+    del.onclick=function(e){
+      e.stopPropagation();
+      var h=loadHistory().filter(function(item){return item!==q;});
+      localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+      var c=loadCache();delete c[q];
+      localStorage.setItem(CACHE_KEY,JSON.stringify(c));
+      if(session.currentQ===q){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:null};clearChat();}
+      renderQList(document.getElementById('qSrch').value);
+    };
+    row.appendChild(txt);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
 function selectQ(q){
   if(busy)return;
-  if(session.currentQ!==q){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};clearChat();}
-  session.currentQ=q;renderQList(document.getElementById('qSrch').value);
-  startNewQ(q);
+  // 캐시 확인 — 있으면 복원, 없으면 새로 실행
+  var cache=loadCache();
+  if(cache[q]){
+    var saved=cache[q];
+    session=Object.assign({},saved.sess);
+    session.currentQ=q;
+    document.getElementById('chatArea').innerHTML=saved.chatHTML;
+    document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
+    renderQList(document.getElementById('qSrch').value);
+    renderAnalysisChips();
+    scrollC();
+  }else{
+    session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};
+    clearChat();
+    renderQList(document.getElementById('qSrch').value);
+    renderAnalysisChips();
+    startNewQ(q);
+  }
 }
 
 // ════════ 마스킹 ════════
@@ -675,6 +824,11 @@ var SYS=`당신은 CFO를 보좌하는 시니어 금융 AI 애널리스트입니
 ## 절대 규칙
 - [COMPANY_001],[ACCOUNT_001],[CARD_001] 등 토큰은 절대 수정하지 마세요.
 - 인사말 없이 바로 리포트 본문으로 시작하세요.
+## 숫자 처리 규칙 (매우 중요)
+- 숫자 비교/필터링 시 쉼표(,)를 제거하고 순수 숫자로 계산하세요.
+  예: "1,474.50" → 1474.50 / "1,700.84" → 1700.84 / "931.61" → 931.61
+- "930 이상" 조건이면: 931.61(JPY) ✓, 1474.50(USD) ✓, 1700.84(EUR) ✓, 213.29(CNY) ✗
+- 필터/정렬/합산 등 모든 수치 연산은 반드시 쉼표 제거 후 수행하세요.
 ## 리포트 구조 (마크다운)
 # 핵심 요약 (중요 수치 **굵게**, > 주의사항)
 ## 데이터 분석 (표, 해석, 패턴)
@@ -782,6 +936,10 @@ async function startNewQ(q){
   if(busy)return;if(!getKey()){openKeyModal();return;}
   var raw=SD[q];if(!raw){addErr('샘플 데이터 없음');return;}
   busy=true;setBusy(true);resetPipe();turnCnt++;var tid=turnCnt;
+  // localStorage 히스토리에 저장 + 왼쪽 목록 갱신
+  saveToHistory(q);
+  renderQList(document.getElementById('qSrch').value);
+  renderAnalysisChips();
   addBubble(q,false);
   var terminal=addTerminal();
   pipeA('ps1');
@@ -853,6 +1011,8 @@ async function startNewQ(q){
     await sleep(280);terminal.remove();
     addReportCard(q,final,r.tm,{co:rCo,ac:rAc,ca:rCa},tid);
     document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
+    // 대화 내용 캐시 저장
+    saveCache(q, document.getElementById('chatArea').innerHTML, session);
   }catch(e){terminal.remove();addErr(e.message);resetPipe();}
   finally{busy=false;setBusy(false);}
 }
@@ -885,6 +1045,8 @@ async function sendFollowup(q){
       addReportCard(q,final,session.tm,{co:0,ac:0,ca:0},tid);
     }
     scrollC();
+    // 추가 질문 후에도 캐시 갱신
+    saveCache(session.currentQ, document.getElementById('chatArea').innerHTML, session);
   }catch(e){if(ld.parentNode)ld.remove();addErr(e.message);resetPipe();}
   finally{busy=false;setBusy(false);}
 }
@@ -895,15 +1057,17 @@ function sendChat(){
   if(!q||busy)return;
   ta.value='';autoResize(ta);
   if(SD[q]){
-    session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};clearChat();renderQList('');startNewQ(q);
+    // SD 칩 질문
+    session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};clearChat();startNewQ(q);
   }else if(session.raw){
+    // 추가 질문 (followup) — 히스토리 저장 안 함 (대화 맥락 질문)
     sendFollowup(q);
   }else{
     // SD에 없는 첫 질문 → 유사 질문 찾기
-    var best=null,bs=0;
-    Q_LABELS.forEach(function(l){var s=0;q.split('').forEach(function(c){if(l.indexOf(c)>=0)s++;});if(s>bs){bs=s;best=l;}});
-    if(best&&bs>3){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:best};clearChat();renderQList('');startNewQ(best);}
-    else{addErr('관련 데이터를 찾을 수 없습니다. 왼쪽 목록에서 질문을 선택해주세요.');}
+    var keys=Object.keys(SD),best=null,bs=0;
+    keys.forEach(function(l){var s=0;q.split('').forEach(function(c){if(l.indexOf(c)>=0)s++;});if(s>bs){bs=s;best=l;}});
+    if(best&&bs>3){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:best};clearChat();startNewQ(best);}
+    else{addErr('관련 데이터를 찾을 수 없습니다. 메인 화면의 빠른 질문을 이용해주세요.');}
   }
 }
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
@@ -963,10 +1127,20 @@ function toggleTheme(){
 
 // ════════ 초기화 ════════
 window.addEventListener('load',function(){
-  // 저장된 테마 적용
   var saved=localStorage.getItem('sa_theme');
   applyTheme(saved==='dark');
-  updateKeyBtn();renderQList('');
+  updateKeyBtn();
+
+  // 캐시-히스토리 정합성 체크
+  // 캐시가 없는 히스토리 항목은 삭제 (Ctrl+Shift+R 등으로 캐시만 날아간 경우)
+  var history=loadHistory();
+  var cache=loadCache();
+  var synced=history.filter(function(q){return !!cache[q];});
+  if(synced.length!==history.length){
+    localStorage.setItem(HISTORY_KEY,JSON.stringify(synced));
+  }
+
+  renderQList('');renderAnalysisChips();
   if(!getKey())openKeyModal();
 });
 document.addEventListener('keydown',function(e){
