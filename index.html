@@ -255,6 +255,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
 .intent-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;margin:2px 0 4px;}
 .intent-badge.reuse{background:var(--greenbg);color:var(--green);border:1px solid var(--greenbd);}
 .intent-badge.refetch{background:var(--amberbg);color:var(--amber);border:1px solid var(--amberbd);}
+.intent-badge.general{background:#F3F0FF;color:#7C3AED;border:1px solid #DDD6FE;}
+[data-theme="dark"] .intent-badge.general{background:rgba(124,58,237,.1);color:#A78BFA;border-color:rgba(124,58,237,.25);}
+.general-mark{background:linear-gradient(135deg,#7C3AED,#A855F7);}
 
 /* 리포트 카드 */
 .report-card{background:var(--bg-card);border-radius:10px;border:1px solid var(--border);transition:background .25s;box-shadow:0 1px 4px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03);overflow:hidden;}
@@ -654,13 +657,32 @@ function quickQ(q){if(!getKey()){openKeyModal();return;}goAnalysis(q);}
 function mainSearch(){
   var q=document.getElementById('mainInp').value.trim();
   if(!getKey()){openKeyModal();return;}
-  goAnalysis(q||null);
-  if(q&&!SD[q]){
+  if(!q){goAnalysis(null);return;}
+
+  // 분석 페이지로 전환
+  document.getElementById('pagMain').classList.remove('active');
+  document.getElementById('pagAnalysis').classList.add('active');
+  updateKeyBtn();renderQList('');renderAnalysisChips();
+
+  if(SD[q]){
+    // 정확히 SD 칩 질문이면 캐시 or 새 실행
+    var cache=loadCache();
+    if(cache[q]){
+      var saved=cache[q];
+      session=Object.assign({},saved.sess);session.currentQ=q;
+      document.getElementById('chatArea').innerHTML=saved.chatHTML;
+      document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
+      renderQList('');renderAnalysisChips();scrollC();
+    }else{
+      startNewQ(q);
+    }
+  }else{
+    // 자유 입력 → 분석 페이지 입력창에 넣고 sendChat 실행
     setTimeout(function(){
-      document.getElementById('chatTa').value=q;
-      autoResize(document.getElementById('chatTa'));
+      var ta=document.getElementById('chatTa');
+      ta.value=q;autoResize(ta);
       sendChat();
-    },100);
+    },50);
   }
 }
 
@@ -835,10 +857,17 @@ var SYS=`당신은 CFO를 보좌하는 시니어 금융 AI 애널리스트입니
 ## 주목 포인트 (리스크, 확인사항)
 ## 표기: 금액 1,234,567원 / 날짜 20260313→2026년 03월 13일 / 표는 마크다운 파이프 테이블`;
 
-var INTENT_SYS=`금융 추가질문의 의도를 판단합니다.
-REUSE: 기존 조회 데이터로 충분한 질문 (계산,비교,분석 등)
-REFETCH: 새 실시간 데이터가 필요한 질문 (최신거래,오늘환율 등)
-반드시 JSON만 반환: {"intent":"REUSE"} 또는 {"intent":"REFETCH","reason":"이유"}`;
+var INTENT_SYS=`금융 AI 어시스턴트의 추가질문 의도를 판단합니다.
+세 가지 중 하나로 분류하세요:
+
+REUSE: 기존 조회된 금융 데이터로 답변 가능한 질문 (계산, 비교, 필터, 분석 등)
+REFETCH: 새로운 실시간 금융 데이터가 필요한 질문 (최신 거래내역, 오늘 환율, 새 계좌 조회 등)
+GENERAL: 금융 데이터와 무관한 일반 질문 (날씨, 스포츠, 일상 대화, 상식, 계산 등)
+
+반드시 JSON만 반환:
+{"intent":"REUSE"}
+{"intent":"REFETCH","reason":"이유"}
+{"intent":"GENERAL"}`;
 
 async function callAPI(messages,sys){
   var k=getKey();if(!k)throw new Error('API 키 없음');
@@ -849,6 +878,55 @@ async function callAPI(messages,sys){
   });
   if(!r.ok){var e=await r.json();throw new Error(r.status===401?'API 키가 올바르지 않습니다':'API 오류: '+((e.error&&e.error.message)||r.statusText));}
   var d=await r.json();return d.content[0].text;
+}
+async function callGeneralAPI(q){
+  var k=getKey();if(!k)throw new Error('API 키 없음');
+
+  // 1차 요청 — 웹 검색 툴 포함
+  var r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:2000,
+      system:'당신은 친절한 AI 어시스턴트입니다. 날씨·스포츠·뉴스 등 최신 정보가 필요하면 web_search 툴을 사용해 검색 후 답변하세요. 마크다운으로 읽기 좋게 작성하세요.',
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:q}]
+    })
+  });
+  if(!r.ok){var e=await r.json();throw new Error(r.status===401?'API 키가 올바르지 않습니다':'API 오류: '+((e.error&&e.error.message)||r.statusText));}
+  var d=await r.json();
+
+  // 텍스트 블록만 모아서 반환
+  var text=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n');
+  if(text)return text;
+
+  // tool_use 블록이 있으면 tool_result 포함해 2차 요청
+  var toolUseBlocks=d.content.filter(function(b){return b.type==='tool_use';});
+  if(toolUseBlocks.length>0){
+    var toolResults=toolUseBlocks.map(function(b){
+      return{type:'tool_result',tool_use_id:b.id,content:'검색 결과를 바탕으로 답변해주세요.'};
+    });
+    var r2=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:2000,
+        system:'당신은 친절한 AI 어시스턴트입니다. 마크다운으로 읽기 좋게 답변하세요.',
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[
+          {role:'user',content:q},
+          {role:'assistant',content:d.content},
+          {role:'user',content:toolResults}
+        ]
+      })
+    });
+    if(!r2.ok){var e2=await r2.json();throw new Error('API 오류: '+((e2.error&&e2.error.message)||r2.statusText));}
+    var d2=await r2.json();
+    return d2.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n');
+  }
+  return'답변을 생성할 수 없습니다.';
 }
 async function judgeIntent(q){
   try{
@@ -879,9 +957,12 @@ function addBubble(q,isFollow){
 }
 function addIntentBadge(intent){
   var d=document.createElement('div');
-  d.innerHTML=intent==='REUSE'
-    ?'<div class="intent-badge reuse">✓ 기존 데이터 재사용 · DB 재조회 불필요</div>'
-    :'<div class="intent-badge refetch">⚡ 실시간 데이터 필요 · 브랜치Q 재조회</div>';
+  if(intent==='REUSE')
+    d.innerHTML='<div class="intent-badge reuse">✓ 기존 데이터 재사용 · DB 재조회 불필요</div>';
+  else if(intent==='GENERAL')
+    d.innerHTML='<div class="intent-badge general">💬 일반 질문 · AI 자체 답변</div>';
+  else
+    d.innerHTML='<div class="intent-badge refetch">⚡ 실시간 데이터 필요 · 브랜치Q 재조회</div>';
   document.getElementById('chatArea').appendChild(d);scrollC();
 }
 function addLoadingInline(msg){
@@ -1033,6 +1114,15 @@ async function sendFollowup(q){
       var rc=document.createElement('div');rc.className='report-card';
       rc.innerHTML='<div class="report-hdr"><div class="ai-mark"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">실시간 데이터 필요</div></div></div><div class="report-body"><div class="md-content"><blockquote>실시간 데이터 조회가 필요한 질문입니다.<br>실서비스에서는 브랜치Q를 통해 최신 데이터를 재조회합니다.<br><strong>사유: '+(intent.reason||'최신 데이터 필요')+'</strong></blockquote></div></div>';
       document.getElementById('chatArea').appendChild(rc);
+    }else if(intent.intent==='GENERAL'){
+      var ld3=addLoadingInline('답변 생성 중...');
+      var generalAns=await callGeneralAPI(q);
+      ld3.remove();
+      var n=new Date(),ts=n.getFullYear()+'.'+p2(n.getMonth()+1)+'.'+p2(n.getDate())+' '+p2(n.getHours())+':'+p2(n.getMinutes());
+      var gc=document.createElement('div');gc.className='report-card';
+      gc.innerHTML='<div class="report-hdr"><div class="ai-mark general-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">일반 답변</div></div><div class="ai-ts">'+ts+'</div></div><div class="report-body"><div class="md-content" id="gc'+tid+'"></div></div>';
+      document.getElementById('chatArea').appendChild(gc);
+      document.getElementById('gc'+tid).innerHTML=renderMd(generalAns);
     }else{
       pipeA('ps2');
       var ld2=addLoadingInline('기존 데이터 기반 분석 중...');
@@ -1057,18 +1147,42 @@ function sendChat(){
   if(!q||busy)return;
   ta.value='';autoResize(ta);
   if(SD[q]){
-    // SD 칩 질문
+    // SD 칩 질문 → 마스킹+LLM 파이프라인
     session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};clearChat();startNewQ(q);
   }else if(session.raw){
-    // 추가 질문 (followup) — 히스토리 저장 안 함 (대화 맥락 질문)
+    // 금융 세션 있음 → followup (REUSE/REFETCH/GENERAL 판단)
     sendFollowup(q);
   }else{
-    // SD에 없는 첫 질문 → 유사 질문 찾기
-    var keys=Object.keys(SD),best=null,bs=0;
-    keys.forEach(function(l){var s=0;q.split('').forEach(function(c){if(l.indexOf(c)>=0)s++;});if(s>bs){bs=s;best=l;}});
-    if(best&&bs>3){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:best};clearChat();startNewQ(best);}
-    else{addErr('관련 데이터를 찾을 수 없습니다. 메인 화면의 빠른 질문을 이용해주세요.');}
+    // 금융 세션 없음 → 일반 질문으로 바로 처리
+    sendGeneralDirect(q);
   }
+}
+
+// 세션 없이 일반 질문 처리
+async function sendGeneralDirect(q){
+  if(busy)return;if(!getKey()){openKeyModal();return;}
+  busy=true;setBusy(true);turnCnt++;var tid=turnCnt;
+  removeEmpty();
+  // 히스토리 저장 + 세션 currentQ 설정
+  session.currentQ=q;
+  saveToHistory(q);
+  renderQList(document.getElementById('qSrch').value);
+  addBubble(q,false);
+  var ld=addLoadingInline('답변 생성 중...');
+  try{
+    var ans=await callGeneralAPI(q);
+    ld.remove();
+    var n=new Date(),ts=n.getFullYear()+'.'+p2(n.getMonth()+1)+'.'+p2(n.getDate())+' '+p2(n.getHours())+':'+p2(n.getMinutes());
+    var gc=document.createElement('div');gc.className='report-card';
+    gc.innerHTML='<div class="report-hdr"><div class="ai-mark general-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">일반 답변</div></div><div class="ai-ts">'+ts+'</div></div><div class="report-body"><div class="md-content" id="gc'+tid+'"></div></div>';
+    document.getElementById('chatArea').appendChild(gc);
+    document.getElementById('gc'+tid).innerHTML=renderMd(ans);
+    scrollC();
+    // 캐시 저장 (나중에 클릭 시 복원용)
+    saveCache(q, document.getElementById('chatArea').innerHTML, session);
+    renderQList(document.getElementById('qSrch').value);
+  }catch(e){if(ld.parentNode)ld.remove();addErr(e.message);}
+  finally{busy=false;setBusy(false);}
 }
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
