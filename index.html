@@ -182,6 +182,24 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
 .q-item.active .q-item-del:hover{background:rgba(255,255,255,.2);color:white;}
 /* 빈 상태 */
 .q-empty-hint{padding:20px 14px;font-size:11px;color:var(--txt-muted);text-align:center;line-height:1.6;}
+/* ── 패널 탭 바 ── */
+.q-tab-bar{display:flex;flex-shrink:0;border-bottom:2px solid var(--border);}
+.q-tab-btn{flex:1;padding:11px 6px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-size:12px;font-weight:700;color:var(--txt-muted);cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.q-tab-btn:hover{color:var(--txt-primary);background:var(--q-item-hover);}
+.q-tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+.q-tab-bm-cnt{font-size:10px;font-weight:700;background:#FEF3C7;color:#D97706;border:1px solid #FDE68A;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center;line-height:1.4;}
+[data-theme="dark"] .q-tab-bm-cnt{background:rgba(217,119,6,.15);border-color:rgba(217,119,6,.3);color:#FBBF24;}
+.q-tab-btn.active .q-tab-bm-cnt{background:var(--bluebg);color:var(--blue);border-color:var(--bluebd);}
+/* ── 탭 패널 ── */
+.q-tab-pane{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
+.q-tab-pane.hidden{display:none;}
+.q-search-wrap{padding:10px 10px 8px;border-bottom:1px solid var(--border2);flex-shrink:0;}
+/* 북마크 탭 리스트 */
+.q-bm-list{flex:1;overflow-y:auto;padding:8px;}
+.q-bm-empty{padding:24px 14px;font-size:11px;color:var(--txt-muted);text-align:center;line-height:1.8;}
+/* 최근질문 별 표시 */
+.q-item-bm{font-size:11px;color:#F59E0B;flex-shrink:0;margin-right:2px;line-height:1;}
+.q-item-bm.hidden{display:none;}
 /* 패널 하단 */
 .q-panel-footer{padding:8px 10px;border-top:1px solid var(--border2);flex-shrink:0;}
 .q-clear-btn{width:100%;padding:6px;background:none;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--txt-muted);cursor:pointer;font-family:inherit;transition:all .13s;}
@@ -258,6 +276,76 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
 .intent-badge.general{background:#F3F0FF;color:#7C3AED;border:1px solid #DDD6FE;}
 [data-theme="dark"] .intent-badge.general{background:rgba(124,58,237,.1);color:#A78BFA;border-color:rgba(124,58,237,.25);}
 .general-mark{background:linear-gradient(135deg,#7C3AED,#A855F7);}
+/* ── 차트 영역 ── */
+.chart-wrap{padding:16px 15px;border-top:1px solid var(--border2);}
+.chart-title{font-size:11px;font-weight:800;color:var(--txt-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.chart-title-ico{font-size:13px;}
+.chart-canvas-wrap{position:relative;width:100%;}
+.chart-canvas-wrap.bar{height:200px;}
+.chart-canvas-wrap.doughnut{height:220px;display:flex;justify-content:center;}
+.chart-canvas-wrap.line{height:180px;}
+
+/* ════ 5가지 신기능 CSS ════ */
+
+/* ① 한 줄 요약 배지 */
+.summary-badge{display:flex;align-items:center;gap:8px;padding:8px 15px;background:linear-gradient(90deg,rgba(37,99,235,.07),rgba(124,58,237,.05));border-bottom:1px solid var(--border2);flex-wrap:wrap;}
+.sb-item{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;border:1px solid;}
+.sb-item.info{background:var(--bluebg);color:var(--blue);border-color:var(--bluebd);}
+.sb-item.warn{background:#FEF3C7;color:#D97706;border-color:#FDE68A;}
+.sb-item.danger{background:var(--redbg);color:var(--red);border-color:var(--redbd);}
+.sb-item.ok{background:var(--greenbg);color:var(--green);border-color:var(--greenbd);}
+[data-theme="dark"] .sb-item.warn{background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.25);}
+
+/* ② 이상 감지 경고 배지 */
+.alert-strip{display:flex;align-items:center;gap:7px;padding:8px 15px;background:rgba(220,38,38,.06);border-bottom:1px solid rgba(220,38,38,.15);font-size:12px;color:var(--red);font-weight:600;}
+.alert-strip svg{width:14px;height:14px;stroke:var(--red);fill:none;flex-shrink:0;}
+.alert-items{display:flex;flex-wrap:wrap;gap:5px;}
+.alert-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:var(--red);}
+
+/* ③ 추천 질문 */
+.suggest-wrap{padding:10px 15px;border-top:1px solid var(--border2);background:var(--bg-card2);}
+.suggest-lbl{font-size:10px;font-weight:800;color:var(--txt-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;}
+.suggest-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.suggest-chip{padding:5px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;font-size:11px;font-weight:600;color:var(--txt-sub);cursor:pointer;transition:all .13s;font-family:inherit;}
+.suggest-chip:hover{background:var(--bluebg);border-color:var(--bluebd);color:var(--blue);}
+
+/* ④ 북마크/메모 */
+.card-actions{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.card-btn{width:26px;height:26px;border:none;background:none;cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .13s;color:var(--txt-muted);}
+.card-btn:hover{background:var(--g100);color:var(--txt-primary);}
+.card-btn.bookmarked{color:#F59E0B;}
+.card-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.card-btn.bookmarked svg{fill:#F59E0B;stroke:#F59E0B;}
+[data-theme="dark"] .card-btn:hover{background:rgba(255,255,255,.08);}
+.memo-area{display:none;padding:10px 15px;border-top:1px solid var(--border2);background:var(--bg-card2);}
+.memo-area.open{display:block;}
+.memo-ta{width:100%;padding:8px 12px;background:var(--input-box-bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;color:var(--txt-primary);font-family:inherit;resize:none;outline:none;min-height:60px;transition:border-color .13s;}
+.memo-ta:focus{border-color:var(--bluebd);}
+.memo-ta::placeholder{color:var(--txt-muted);}
+.memo-save-btn{margin-top:6px;padding:5px 14px;background:var(--blue);border:none;border-radius:6px;color:white;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.memo-saved{font-size:11px;color:var(--green);font-weight:600;margin-top:4px;display:none;}
+
+/* ⑤ PDF/Excel 내보내기 */
+.export-btn{padding:4px 11px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);font-size:10px;font-weight:700;color:var(--txt-sub);cursor:pointer;font-family:inherit;transition:all .13s;display:flex;align-items:center;gap:4px;}
+.export-btn:hover{background:var(--bluebg);border-color:var(--bluebd);color:var(--blue);}
+
+/* 캐시 확인 모달 */
+.cache-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;}
+.cache-modal-overlay.show{display:flex;opacity:1;}
+.cache-modal{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:28px 28px 22px;width:340px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(10px);transition:transform .18s;}
+.cache-modal-overlay.show .cache-modal{transform:translateY(0);}
+.cache-modal-ico{width:38px;height:38px;background:var(--bluebg);border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.cache-modal-ico svg{width:18px;height:18px;stroke:var(--blue);fill:none;stroke-width:2;}
+.cache-modal-t{font-size:15px;font-weight:800;color:var(--txt-primary);margin-bottom:6px;}
+.cache-modal-d{font-size:12px;color:var(--txt-sub);line-height:1.7;margin-bottom:20px;}
+.cache-modal-btns{display:flex;gap:8px;}
+.cache-modal-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .13s;}
+.cache-modal-btn.primary{background:var(--blue);color:white;}
+.cache-modal-btn.primary:hover{background:var(--blue2);}
+.cache-modal-btn.secondary{background:var(--bg-card2);border:1px solid var(--border);color:var(--txt-sub);}
+.cache-modal-btn.secondary:hover{background:var(--g100);color:var(--txt-primary);}
+.export-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+
 
 /* 리포트 카드 */
 .report-card{background:var(--bg-card);border-radius:10px;border:1px solid var(--border);transition:background .25s;box-shadow:0 1px 4px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03);overflow:hidden;}
@@ -447,6 +535,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
 :root:not([data-theme="dark"]) .search-box:focus-within{border-color:var(--bluebd);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
 :root:not([data-theme="dark"]) .main-chip:hover{background:var(--bluebg);border-color:var(--bluebd);color:var(--blue);}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -534,16 +623,32 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
   </div>
   <div class="analysis-layout">
     <div class="q-panel">
-      <div class="q-panel-hdr">
-        <div class="q-panel-ttl">최근 질문</div>
-        <div class="q-search">
-          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input class="q-search-inp" id="qSrch" placeholder="질문 검색..." oninput="renderQList(this.value)">
+      <!-- 탭 헤더 -->
+      <div class="q-tab-bar">
+        <button class="q-tab-btn active" id="tabRecent" onclick="switchPanelTab('recent')">최근 질문</button>
+        <button class="q-tab-btn" id="tabBm" onclick="switchPanelTab('bookmark')">
+          ★ 북마크
+          <span class="q-tab-bm-cnt" id="bmCount">0</span>
+        </button>
+      </div>
+
+      <!-- 최근 질문 탭 -->
+      <div class="q-tab-pane" id="paneRecent">
+        <div class="q-search-wrap">
+          <div class="q-search">
+            <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="q-search-inp" id="qSrch" placeholder="질문 검색..." oninput="renderQList(this.value)">
+          </div>
+        </div>
+        <div class="q-list" id="qList"></div>
+        <div class="q-panel-footer">
+          <button class="q-clear-btn" onclick="if(confirm('질문 내역을 모두 삭제할까요?'))clearHistory()">전체 삭제</button>
         </div>
       </div>
-      <div class="q-list" id="qList"></div>
-      <div class="q-panel-footer">
-        <button class="q-clear-btn" onclick="if(confirm('질문 내역을 모두 삭제할까요?'))clearHistory()">전체 삭제</button>
+
+      <!-- 북마크 탭 -->
+      <div class="q-tab-pane hidden" id="paneBm">
+        <div class="q-bm-list" id="qBmList"></div>
       </div>
     </div>
     <div class="main-content">
@@ -568,6 +673,38 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-page);color:var(-
         </div>
         <div class="input-hint" id="inputHint">왼쪽에서 질문을 선택하거나 직접 입력하세요</div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 캐시 확인 모달 -->
+<div class="cache-modal-overlay" id="cacheModalOverlay">
+  <div class="cache-modal">
+    <div class="cache-modal-ico">
+      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="cache-modal-t">이전 조회 내역이 있습니다</div>
+    <div class="cache-modal-d" id="cacheModalDesc">이 항목은 이미 조회한 내역이 있습니다.<br>이전 결과를 바로 볼까요?</div>
+    <div class="cache-modal-btns">
+      <button class="cache-modal-btn primary" id="cacheModalYes">이전 결과 보기</button>
+      <button class="cache-modal-btn secondary" id="cacheModalNo">새로 조회</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- 캐시 확인 모달 -->
+<div class="cache-modal-overlay" id="cacheModalOverlay">
+  <div class="cache-modal">
+    <div class="cache-modal-ico">
+      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="cache-modal-t">이전 조회 내역이 있습니다</div>
+    <div class="cache-modal-d" id="cacheModalDesc">이 항목은 이미 조회한 내역이 있습니다.<br>이전 결과를 바로 볼까요?</div>
+    <div class="cache-modal-btns">
+      <button class="cache-modal-btn primary" id="cacheModalYes">이전 결과 보기</button>
+      <button class="cache-modal-btn secondary" id="cacheModalNo">새로 조회</button>
     </div>
   </div>
 </div>
@@ -637,7 +774,7 @@ function goAnalysis(firstQ){
   if(!getKey()){openKeyModal();return;}
   document.getElementById('pagMain').classList.remove('active');
   document.getElementById('pagAnalysis').classList.add('active');
-  updateKeyBtn();renderQList('');renderAnalysisChips();
+  updateKeyBtn();renderQList('');renderBmList();renderAnalysisChips();
   if(firstQ){
     // 캐시 있으면 복원, 없으면 새로 실행
     var cache=loadCache();
@@ -653,7 +790,16 @@ function goAnalysis(firstQ){
     }
   }
 }
-function quickQ(q){if(!getKey()){openKeyModal();return;}goAnalysis(q);}
+function quickQ(q){
+  if(!getKey()){openKeyModal();return;}
+  // 메인 칩 클릭 → 항상 새 질문으로 처리 (캐시 무시)
+  document.getElementById('pagMain').classList.remove('active');
+  document.getElementById('pagAnalysis').classList.add('active');
+  updateKeyBtn();renderQList('');renderBmList();renderAnalysisChips();
+  session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};
+  clearChat();
+  startNewQ(q);
+}
 function mainSearch(){
   var q=document.getElementById('mainInp').value.trim();
   if(!getKey()){openKeyModal();return;}
@@ -662,20 +808,13 @@ function mainSearch(){
   // 분석 페이지로 전환
   document.getElementById('pagMain').classList.remove('active');
   document.getElementById('pagAnalysis').classList.add('active');
-  updateKeyBtn();renderQList('');renderAnalysisChips();
+  updateKeyBtn();renderQList('');renderBmList();renderAnalysisChips();
 
   if(SD[q]){
-    // 정확히 SD 칩 질문이면 캐시 or 새 실행
-    var cache=loadCache();
-    if(cache[q]){
-      var saved=cache[q];
-      session=Object.assign({},saved.sess);session.currentQ=q;
-      document.getElementById('chatArea').innerHTML=saved.chatHTML;
-      document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
-      renderQList('');renderAnalysisChips();scrollC();
-    }else{
-      startNewQ(q);
-    }
+    // 메인에서 입력한 SD 질문 → 항상 새 질문으로 처리 (캐시 무시)
+    session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};
+    clearChat();
+    startNewQ(q);
   }else{
     // 자유 입력 → 분석 페이지 입력창에 넣고 sendChat 실행
     setTimeout(function(){
@@ -699,23 +838,47 @@ function renderAnalysisChips(){
       if(busy)return;
       var cache=loadCache();
       if(cache[q]){
-        var saved=cache[q];
-        session=Object.assign({},saved.sess);
-        session.currentQ=q;
-        document.getElementById('chatArea').innerHTML=saved.chatHTML;
-        document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
-        renderQList(document.getElementById('qSrch').value);
-        renderAnalysisChips();
-        scrollC();
+        // 캐시 있으면 모달로 확인
+        showCacheModal(q,cache[q]);
       }else{
+        // 캐시 없으면 바로 새 질문
         session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};
-        clearChat();
-        renderAnalysisChips();
-        startNewQ(q);
+        clearChat();renderAnalysisChips();startNewQ(q);
       }
     };
     wrap.appendChild(c);
   });
+}
+
+// ════════ 캐시 확인 모달 ════════
+function showCacheModal(q, saved){
+  var overlay=document.getElementById('cacheModalOverlay');
+  document.getElementById('cacheModalDesc').innerHTML=
+    '<b>'+q+'</b> 항목의 이전 조회 내역이 있습니다.<br>바로 확인하거나 새로 조회할 수 있습니다.';
+
+  // YES — 이전 결과 복원
+  document.getElementById('cacheModalYes').onclick=function(){
+    hideCacheModal();
+    session=Object.assign({},saved.sess);
+    session.currentQ=q;
+    document.getElementById('chatArea').innerHTML=saved.chatHTML;
+    document.getElementById('inputHint').textContent='추가 질문을 입력하세요 (현재 조회 데이터 기반으로 계속 대화 가능)';
+    renderQList('');renderAnalysisChips();scrollC();
+  };
+
+  // NO — 새로 질문
+  document.getElementById('cacheModalNo').onclick=function(){
+    hideCacheModal();
+    session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:q};
+    clearChat();renderAnalysisChips();startNewQ(q);
+  };
+
+  overlay.classList.add('show');
+  // 오버레이 클릭 시 닫기
+  overlay.onclick=function(e){if(e.target===overlay)hideCacheModal();};
+}
+function hideCacheModal(){
+  document.getElementById('cacheModalOverlay').classList.remove('show');
 }
 
 // ════════ 질문 히스토리 (localStorage) ════════
@@ -748,7 +911,57 @@ function saveCache(q,chatHTML,sess){
 function clearHistory(){
   localStorage.removeItem(HISTORY_KEY);
   localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem(BM_KEY);
   renderQList('');
+  renderBmList();
+}
+
+// ════════ 패널 탭 전환 ════════
+function switchPanelTab(tab){
+  var isRecent = tab==='recent';
+  document.getElementById('tabRecent').className='q-tab-btn'+(isRecent?' active':'');
+  document.getElementById('tabBm').className='q-tab-btn'+(!isRecent?' active':'');
+  document.getElementById('paneRecent').className='q-tab-pane'+(isRecent?'':' hidden');
+  document.getElementById('paneBm').className='q-tab-pane'+(isRecent?' hidden':'');
+  if(!isRecent) renderBmList();
+}
+
+// ════════ 북마크 목록 렌더링 ════════
+function renderBmList(){
+  var bmList=document.getElementById('qBmList');
+  var cntEl=document.getElementById('bmCount');
+  if(!bmList)return;
+  var bm=loadBookmarks();
+  var history=loadHistory();
+  // 히스토리에 있는 것만 (삭제된 질문 제외)
+  var bmKeys=Object.keys(bm).filter(function(q){return history.indexOf(q)>=0;});
+  cntEl.textContent=bmKeys.length;
+  bmList.innerHTML='';
+  if(bmKeys.length===0){
+    bmList.innerHTML='<div class="q-bm-empty">★ 북마크한 질문이 없습니다.<br>답변 카드의 🔖 버튼을 눌러<br>북마크를 추가하세요.</div>';
+    return;
+  }
+  // 최신 북마크 순 정렬
+  bmKeys.sort(function(a,b){return (bm[b].ts||0)-(bm[a].ts||0);});
+  bmKeys.forEach(function(q){
+    var row=document.createElement('div');
+    row.className='q-item'+(session.currentQ===q?' active':'');
+    var star=document.createElement('span');
+    star.className='q-item-bm';star.textContent='★';
+    var txt=document.createElement('span');
+    txt.className='q-item-txt';txt.textContent=q;
+    txt.onclick=function(){selectQ(q);};
+    var del=document.createElement('button');
+    del.className='q-item-del';del.innerHTML='×';del.title='북마크 해제';
+    del.onclick=function(e){
+      e.stopPropagation();
+      var bmData=loadBookmarks();delete bmData[q];
+      localStorage.setItem(BM_KEY,JSON.stringify(bmData));
+      renderBmList();renderQList(document.getElementById('qSrch').value);
+    };
+    row.appendChild(star);row.appendChild(txt);row.appendChild(del);
+    bmList.appendChild(row);
+  });
 }
 
 // ════════ 질문 목록 ════════
@@ -756,6 +969,7 @@ function renderQList(filter){
   var list=document.getElementById('qList');
   list.innerHTML='';
   var history=loadHistory();
+  var bm=loadBookmarks();
   var filtered=history.filter(function(q){
     return !filter||q.toLowerCase().indexOf(filter.toLowerCase())>=0;
   });
@@ -767,14 +981,18 @@ function renderQList(filter){
     return;
   }
   filtered.forEach(function(q){
-    var cache=loadCache();
-    var hasCache=!!cache[q];
     var row=document.createElement('div');
     row.className='q-item'+(session.currentQ===q?' active':'');
+    // 북마크 별
+    var star=document.createElement('span');
+    star.className='q-item-bm'+(bm[q]?'':' hidden');
+    star.textContent='★';
+    // 텍스트
     var txt=document.createElement('span');
     txt.className='q-item-txt';
     txt.textContent=q;
     txt.onclick=function(){selectQ(q);};
+    // 삭제 버튼
     var del=document.createElement('button');
     del.className='q-item-del';
     del.innerHTML='×';
@@ -783,11 +1001,14 @@ function renderQList(filter){
       e.stopPropagation();
       var h=loadHistory().filter(function(item){return item!==q;});
       localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
-      var c=loadCache();delete c[q];
-      localStorage.setItem(CACHE_KEY,JSON.stringify(c));
+      var ca=loadCache();delete ca[q];
+      localStorage.setItem(CACHE_KEY,JSON.stringify(ca));
+      var bmData=loadBookmarks();delete bmData[q];
+      localStorage.setItem(BM_KEY,JSON.stringify(bmData));
       if(session.currentQ===q){session={raw:null,maskedRaw:null,tm:{},history:[],currentQ:null};clearChat();}
       renderQList(document.getElementById('qSrch').value);
     };
+    row.appendChild(star);
     row.appendChild(txt);
     row.appendChild(del);
     list.appendChild(row);
@@ -842,20 +1063,68 @@ function colorize(line,tm){
 function unmask(text,tm){var o=text;Object.keys(tm).forEach(function(t){o=o.split(t).join(tm[t].val);});return o;}
 
 // ════════ API ════════
-var SYS=`당신은 CFO를 보좌하는 시니어 금융 AI 애널리스트입니다.
+var SYS=`당신은 10년 이상 경력의 기업 재무 전문가이자 시니어 금융 AI 애널리스트입니다. CFO와 재무팀에게 보고하는 수준의 전문적이고 간결한 리포트를 작성합니다.
+
 ## 절대 규칙
-- [COMPANY_001],[ACCOUNT_001],[CARD_001] 등 토큰은 절대 수정하지 마세요.
-- 인사말 없이 바로 리포트 본문으로 시작하세요.
-## 숫자 처리 규칙 (매우 중요)
-- 숫자 비교/필터링 시 쉼표(,)를 제거하고 순수 숫자로 계산하세요.
-  예: "1,474.50" → 1474.50 / "1,700.84" → 1700.84 / "931.61" → 931.61
-- "930 이상" 조건이면: 931.61(JPY) ✓, 1474.50(USD) ✓, 1700.84(EUR) ✓, 213.29(CNY) ✗
-- 필터/정렬/합산 등 모든 수치 연산은 반드시 쉼표 제거 후 수행하세요.
-## 리포트 구조 (마크다운)
-# 핵심 요약 (중요 수치 **굵게**, > 주의사항)
-## 데이터 분석 (표, 해석, 패턴)
-## 주목 포인트 (리스크, 확인사항)
-## 표기: 금액 1,234,567원 / 날짜 20260313→2026년 03월 13일 / 표는 마크다운 파이프 테이블`;
+- [COMPANY_001],[ACCOUNT_001],[CARD_001] 등 토큰은 절대 수정하거나 누락하지 마세요.
+- 인사말, 안내문구 없이 리포트 본문으로 바로 시작하세요.
+- "~것 같습니다", "~수도 있습니다" 등 애매한 표현 금지. 데이터 기반의 단정적 표현을 사용하세요.
+- "확인이 필요합니다" 대신 구체적 수치와 근거를 제시하세요.
+
+## 숫자 처리 규칙 (필수)
+- 비교/필터/정렬 시 쉼표 제거 후 순수 숫자로 계산하세요.
+  예: "1,474.50" → 1474.50 / "1,700.84" → 1700.84
+- 합산, 증감률, 비중 계산을 적극 활용하세요.
+
+## 어투 기준
+- 격식체 사용: "~입니다", "~됩니다", "~확인됩니다"
+- 애매한 표현 금지: "~것 같습니다", "~수도 있습니다" → "~입니다", "~확인됩니다"
+- 수동적 표현 금지: "~해주세요" → "~권고합니다", "~필요합니다"
+- 수치는 반드시 단위 명시: 원, %, 건, 개
+- 전문 용어는 쉽게 풀어 쓰세요. 어려운 한자어나 영문 약어는 꼭 써야 할 경우 괄호로 설명을 덧붙이세요.
+  예: "유동성 리스크" → "당장 현금이 부족해질 위험", "매입채무" → "아직 갚지 않은 외상값(매입채무)"
+- 문장은 짧고 명확하게. 한 문장에 하나의 내용만 담으세요.
+
+## 리포트 구조 (반드시 준수)
+# 핵심 요약
+- 3줄 이내로 가장 중요한 수치와 시사점만 압축
+- 주요 수치는 **굵게** 표시
+- 리스크나 주의사항은 > 인용구로 표시
+
+## 데이터 분석
+- 데이터는 반드시 마크다운 파이프 테이블로 시각화
+- 테이블에 합계행, 비중(%), 증감 컬럼을 추가해 인사이트 강화
+- 단순 나열 금지 — 패턴, 집중도, 이상치를 해석하여 서술
+
+## 주목 포인트
+- 리스크, 기회, 즉시 조치 필요 사항을 번호 목록으로 명시
+- 각 항목마다 근거 수치를 반드시 포함
+
+## 표기 규칙
+- 금액: 1,234,567원 (단위 항상 표기)
+- 날짜: 20260313 → 2026년 03월 13일
+- 비율: 소수점 1자리까지 (예: 32.4%)
+- 외화: USD 1,474.50 / EUR 1,700.84 형식
+
+## 리포트 끝 메타 출력 (필수)
+리포트 본문이 끝난 후 반드시 아래 JSON 블록을 출력하세요. 본문과 구분되도록 ---META--- 구분자를 사용하세요.
+
+---META---
+{"summary":["배지1","배지2","배지3"],"alerts":["경고1","경고2"],"suggestions":["추천질문1","추천질문2","추천질문3"]}
+
+규칙:
+- summary: 핵심 수치 3개 이내. 예: "총 대출 110억원", "활성계좌 5개", "외화 USD 210.26"
+- alerts: 이상 감지 항목. 잔액 0원 계좌, 만기 임박(90일 이내), 급격한 변동, 리스크 항목. 없으면 빈 배열 []
+- suggestions: 이 데이터를 본 사람이 바로 이어서 물어볼 만한 질문 3개. 구체적 수치 기반으로 작성
+- JSON은 반드시 한 줄로, 유효한 JSON 형식으로 출력하세요
+- chart: 데이터를 시각화할 차트 정보. 차트로 표현하기 적합한 숫자 데이터가 있으면 반드시 포함. 없으면 null.
+  차트 타입 선택 기준:
+  * bar: 항목별 금액/잔액 비교 (계좌별 잔액, 대출 잔액 등)
+  * doughnut: 구성 비율/비중 (통화별 비중, 은행별 비중 등)
+  * line: 시계열 추이 (월별 잔액 변화, 날짜별 거래 등)
+  차트 데이터 형식:
+  {"type":"bar","title":"차트제목","labels":["항목1","항목2"],"values":[숫자1,숫자2],"unit":"원"}
+  주의: labels는 역마스킹된 실제 값이 아닌 토큰([COMPANY_001] 등)을 그대로 사용하세요`;
 
 var INTENT_SYS=`금융 AI 어시스턴트의 추가질문 의도를 판단합니다.
 세 가지 중 하나로 분류하세요:
@@ -881,52 +1150,31 @@ async function callAPI(messages,sys){
 }
 async function callGeneralAPI(q){
   var k=getKey();if(!k)throw new Error('API 키 없음');
-
-  // 1차 요청 — 웹 검색 툴 포함
   var r=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({
       model:'claude-haiku-4-5-20251001',
-      max_tokens:2000,
-      system:'당신은 친절한 AI 어시스턴트입니다. 날씨·스포츠·뉴스 등 최신 정보가 필요하면 web_search 툴을 사용해 검색 후 답변하세요. 마크다운으로 읽기 좋게 작성하세요.',
-      tools:[{type:'web_search_20250305',name:'web_search'}],
+      max_tokens:1500,
+      system:`당신은 SecureAgent의 AI 어시스턴트입니다.
+금융 데이터 분석이 주 역할이지만, 일반 질문에도 친절하게 답변합니다.
+
+## 실시간 정보 처리 규칙
+오늘 날씨, 실시간 스포츠 결과, 최신 뉴스, 현재 주가 등 실시간 정보를 요청받으면:
+1. "실시간 정보는 제공이 어렵습니다"라고 간결하게 먼저 안내
+2. 확인할 수 있는 방법 2~3가지만 짧게 제시 (길게 나열 금지)
+3. 알고 있는 관련 배경 지식이 있으면 한 줄로 덧붙이기
+
+## 일반 답변 규칙
+- 마크다운으로 읽기 좋게 작성
+- 핵심만 간결하게 (불필요한 나열 금지)
+- 친근하고 자연스러운 어투`,
       messages:[{role:'user',content:q}]
     })
   });
   if(!r.ok){var e=await r.json();throw new Error(r.status===401?'API 키가 올바르지 않습니다':'API 오류: '+((e.error&&e.error.message)||r.statusText));}
   var d=await r.json();
-
-  // 텍스트 블록만 모아서 반환
-  var text=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n');
-  if(text)return text;
-
-  // tool_use 블록이 있으면 tool_result 포함해 2차 요청
-  var toolUseBlocks=d.content.filter(function(b){return b.type==='tool_use';});
-  if(toolUseBlocks.length>0){
-    var toolResults=toolUseBlocks.map(function(b){
-      return{type:'tool_result',tool_use_id:b.id,content:'검색 결과를 바탕으로 답변해주세요.'};
-    });
-    var r2=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:2000,
-        system:'당신은 친절한 AI 어시스턴트입니다. 마크다운으로 읽기 좋게 답변하세요.',
-        tools:[{type:'web_search_20250305',name:'web_search'}],
-        messages:[
-          {role:'user',content:q},
-          {role:'assistant',content:d.content},
-          {role:'user',content:toolResults}
-        ]
-      })
-    });
-    if(!r2.ok){var e2=await r2.json();throw new Error('API 오류: '+((e2.error&&e2.error.message)||r2.statusText));}
-    var d2=await r2.json();
-    return d2.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n');
-  }
-  return'답변을 생성할 수 없습니다.';
+  return d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n')||'답변을 생성할 수 없습니다.';
 }
 async function judgeIntent(q){
   try{
@@ -942,6 +1190,16 @@ function clearChat(){
 }
 function removeEmpty(){var e=document.querySelector('.chat-empty');if(e)e.remove();}
 function scrollC(){var a=document.getElementById('chatArea');a.scrollTop=a.scrollHeight;}
+// 특정 요소의 맨 위가 보이도록 스크롤
+function scrollToEl(el){
+  if(!el)return;
+  var area=document.getElementById('chatArea');
+  // 요소의 chatArea 내 상대 위치 계산
+  var elTop=el.offsetTop;
+  var parent=el.offsetParent;
+  while(parent&&parent!==area){elTop+=parent.offsetTop;parent=parent.offsetParent;}
+  area.scrollTo({top:elTop-12,behavior:'smooth'});
+}
 function setBusy(b){document.getElementById('sendBtn').disabled=b;document.getElementById('chatTa').disabled=b;}
 function resetPipe(){['ps1','ps2','ps3','ps4'].forEach(function(id){document.getElementById(id).className='ps';});}
 function pipeA(id){document.getElementById(id).className='ps active';}
@@ -982,16 +1240,243 @@ function addTerminal(){
   document.getElementById('chatArea').appendChild(b);scrollC();return b;
 }
 
+// ════════ 메타 파싱 ════════
+// ════════ 차트 렌더링 ════════
+var chartInstances={};
+function renderChart(tid, chartData, tm){
+  if(!chartData||!chartData.type||!chartData.labels||!chartData.values)return;
+  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+
+  // labels 역마스킹 — 토큰을 실제 값으로 복원
+  var labels=chartData.labels.map(function(lbl){
+    var out=lbl;
+    if(tm){Object.keys(tm).forEach(function(tok){out=out.split(tok).join(tm[tok].val);});}
+    // 긴 텍스트 줄임
+    return out.length>10?out.substring(0,9)+'…':out;
+  });
+
+  var values=chartData.values.map(function(v){return typeof v==='string'?parseFloat(v.replace(/,/g,''))||0:v;});
+  var unit=chartData.unit||'';
+  var type=chartData.type;
+
+  // 색상 팔레트
+  var palette=['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16'];
+  var textColor=isDark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)';
+  var gridColor=isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
+
+  var canvasId='chart-'+tid;
+  var canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+
+  // 기존 인스턴스 제거
+  if(chartInstances[tid]){chartInstances[tid].destroy();delete chartInstances[tid];}
+
+  var config;
+  if(type==='bar'){
+    config={
+      type:'bar',
+      data:{
+        labels:labels,
+        datasets:[{
+          data:values,
+          backgroundColor:palette.map(function(p){return p+'CC';}),
+          borderColor:palette,
+          borderWidth:1.5,
+          borderRadius:5
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return' '+ctx.parsed.y.toLocaleString()+unit;}}}},
+        scales:{
+          x:{ticks:{color:textColor,font:{size:11}},grid:{display:false}},
+          y:{ticks:{color:textColor,font:{size:10},callback:function(v){
+            if(Math.abs(v)>=100000000)return(v/100000000).toFixed(0)+'억';
+            if(Math.abs(v)>=10000)return(v/10000).toFixed(0)+'만';
+            return v.toLocaleString();
+          }},grid:{color:gridColor}}
+        }
+      }
+    };
+  }else if(type==='doughnut'){
+    config={
+      type:'doughnut',
+      data:{labels:labels,datasets:[{data:values,backgroundColor:palette,borderWidth:2,borderColor:isDark?'#111E33':'#ffffff',hoverOffset:6}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,cutout:'62%',
+        plugins:{
+          legend:{position:'right',labels:{color:textColor,font:{size:11},boxWidth:12,padding:10}},
+          tooltip:{callbacks:{label:function(ctx){
+            var total=ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+            var pct=total>0?(ctx.parsed/total*100).toFixed(1):'0';
+            return' '+ctx.parsed.toLocaleString()+unit+' ('+pct+'%)';
+          }}}
+        }
+      }
+    };
+  }else if(type==='line'){
+    config={
+      type:'line',
+      data:{labels:labels,datasets:[{data:values,borderColor:'#3B82F6',backgroundColor:'rgba(59,130,246,0.1)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#3B82F6',tension:0.3,fill:true}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return' '+ctx.parsed.y.toLocaleString()+unit;}}}},
+        scales:{
+          x:{ticks:{color:textColor,font:{size:11}},grid:{color:gridColor}},
+          y:{ticks:{color:textColor,font:{size:10},callback:function(v){
+            if(Math.abs(v)>=100000000)return(v/100000000).toFixed(0)+'억';
+            if(Math.abs(v)>=10000)return(v/10000).toFixed(0)+'만';
+            return v.toLocaleString();
+          }},grid:{color:gridColor}}
+        }
+      }
+    };
+  }
+
+  chartInstances[tid]=new Chart(canvas,config);
+}
+
+function parseMeta(raw){
+  try{
+    var idx=raw.indexOf('---META---');
+    if(idx<0)return{body:raw,meta:null};
+    var body=raw.substring(0,idx).trim();
+    var jsonStr=raw.substring(idx+10).trim();
+    var meta=JSON.parse(jsonStr);
+    return{body:body,meta:meta};
+  }catch(e){return{body:raw,meta:null};}
+}
+
+// ════════ 북마크 저장 ════════
+var BM_KEY='sa_bookmarks';
+function loadBookmarks(){try{return JSON.parse(localStorage.getItem(BM_KEY)||'{}');}catch(e){return{};}}
+function toggleBookmark(tid,btn){
+  var q=session.currentQ||'';
+  if(!q)return;
+  var bm=loadBookmarks();
+  if(bm[q]&&bm[q].tid===tid){
+    // 해제
+    delete bm[q];
+    btn.classList.remove('bookmarked');
+    btn.title='북마크';
+  }else{
+    // 설정
+    bm[q]={ts:Date.now(),tid:tid};
+    btn.classList.add('bookmarked');
+    btn.title='북마크 해제';
+  }
+  localStorage.setItem(BM_KEY,JSON.stringify(bm));
+  renderBmList();
+  renderQList(document.getElementById('qSrch').value);
+}
+function toggleMemo(tid){
+  var ma=document.getElementById('memo'+tid);
+  ma.classList.toggle('open');
+  if(ma.classList.contains('open'))document.getElementById('memota'+tid).focus();
+}
+function saveMemo(tid){
+  var val=document.getElementById('memota'+tid).value.trim();
+  var q=session.currentQ||'';
+  var bm=loadBookmarks();
+  if(!bm[q])bm[q]={ts:Date.now(),tid:tid};
+  bm[q].memo=val;
+  localStorage.setItem(BM_KEY,JSON.stringify(bm));
+  renderBmList();
+  var saved=document.getElementById('memosaved'+tid);
+  saved.style.display='block';setTimeout(function(){saved.style.display='none';},1500);
+}
+
 function addReportCard(q,answer,tm,mc,tid){
   var n=new Date(),ts=n.getFullYear()+'.'+p2(n.getMonth()+1)+'.'+p2(n.getDate())+' '+p2(n.getHours())+':'+p2(n.getMinutes());
   var tags='';
   if(mc.co)tags+='<span class="rtag co">회사명 '+mc.co+'건</span>';
   if(mc.ac)tags+='<span class="rtag ac">계좌 '+mc.ac+'건</span>';
   if(mc.ca)tags+='<span class="rtag ca">카드 '+mc.ca+'건</span>';
+
+  // 메타 파싱
+  var parsed=parseMeta(answer);
+  var body=parsed.body;
+  var meta=parsed.meta;
+
+  // ① 한 줄 요약 배지 HTML
+  var summaryHtml='';
+  if(meta&&meta.summary&&meta.summary.length>0){
+    var badges=meta.summary.map(function(s){return'<span class="sb-item info">'+esc(s)+'</span>';}).join('');
+    summaryHtml='<div class="summary-badge">'+badges+'</div>';
+  }
+
+  // ② 이상 감지 경고 배지 HTML
+  var alertHtml='';
+  if(meta&&meta.alerts&&meta.alerts.length>0){
+    var achips=meta.alerts.map(function(a){return'<span class="alert-chip">⚠ '+esc(a)+'</span>';}).join('');
+    alertHtml='<div class="alert-strip"><svg viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg><div class="alert-items">'+achips+'</div></div>';
+  }
+
+  // ② 차트 HTML
+  var chartHtml='';
+  if(meta&&meta.chart){
+    var ch=meta.chart;
+    var wrapClass='chart-canvas-wrap '+(ch.type||'bar');
+    chartHtml='<div class="chart-wrap">'
+      +'<div class="chart-title"><span class="chart-title-ico">📊</span>'+(ch.title||'데이터 시각화')+'</div>'
+      +'<div class="'+wrapClass+'"><canvas id="chart-'+tid+'"></canvas></div>'
+      +'</div>';
+  }
+
+  // ③ 추천 질문 HTML
+  var suggestHtml='';
+  if(meta&&meta.suggestions&&meta.suggestions.length>0){
+    var schips=meta.suggestions.map(function(s){
+      return'<button class="suggest-chip" onclick="useSuggest(\''+s.replace(/'/g,"\\'")+'\')" >'+esc(s)+'</button>';
+    }).join('');
+    suggestHtml='<div class="suggest-wrap"><div class="suggest-lbl">이어서 물어보기</div><div class="suggest-chips">'+schips+'</div></div>';
+  }
+
   var c=document.createElement('div');c.className='report-card';
-  c.innerHTML='<div class="report-hdr"><div class="ai-mark"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">'+esc(q)+'</div></div><div class="ai-ts">'+ts+'</div></div>'+(tags?'<div class="report-tags">'+tags+'</div>':'')+'<div class="report-body"><div class="md-content" id="rc'+tid+'"></div></div><div class="proc-panel hidden" id="pp'+tid+'"><div class="proc-toggle" id="pt'+tid+'" onclick="toggleProc('+tid+')"><div class="proc-toggle-l"><span class="proc-lbl">생성 과정</span><span class="proc-badge" id="pb_cnt'+tid+'">0건</span></div><svg class="chevron" id="chev'+tid+'" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></div><div class="proc-body" id="pbd'+tid+'"><div class="proc-section"><div class="proc-sec-t mask"><span class="sp">STEP 1</span>마스킹</div><table class="proc-tbl"><thead><tr><th>유형</th><th>원본</th><th></th><th>토큰</th></tr></thead><tbody id="pm'+tid+'"></tbody></table></div><div class="proc-section"><div class="proc-sec-t unmask"><span class="sp">STEP 3</span>역마스킹</div><table class="proc-tbl"><thead><tr><th>유형</th><th>토큰</th><th></th><th>복원</th></tr></thead><tbody id="pu'+tid+'"></tbody></table></div></div></div>';
+  c.innerHTML=
+    '<div class="report-hdr">'+
+      '<div class="ai-mark"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div>'+
+      '<div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">'+esc(q)+'</div></div>'+
+      '<div class="card-actions">'+
+        // ⑤ PDF/Excel 버튼
+        '<button class="export-btn" onclick="exportPDF('+tid+')" title="PDF 저장"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>PDF</button>'+
+        '<button class="export-btn" onclick="exportCSV('+tid+')" title="CSV 저장"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75.125V14.25m0 5.25H4.5m14.625 0h-1.5c-.621 0-1.125-.504-1.125-1.125M18.375 19.5h1.5v-5.25m0 0V6.375a1.125 1.125 0 00-1.125-1.125H5.25A1.125 1.125 0 004.125 6.375v7.875m14.25 0H4.125"/></svg>CSV</button>'+
+        // ④ 북마크/메모 버튼
+        '<button class="card-btn" id="bmbtn'+tid+'" onclick="toggleBookmark('+tid+',this)" title="북마크"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg></button>'+
+        '<button class="card-btn" onclick="toggleMemo('+tid+')" title="메모"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg></button>'+
+      '</div>'+
+      '<div class="ai-ts">'+ts+'</div>'+
+    '</div>'+
+    summaryHtml+
+    alertHtml+
+    (tags?'<div class="report-tags">'+tags+'</div>':'')+
+    '<div class="report-body"><div class="md-content" id="rc'+tid+'"></div></div>'+
+    chartHtml+
+    '<div class="memo-area" id="memo'+tid+'">'+
+      '<textarea class="memo-ta" id="memota'+tid+'" placeholder="이 리포트에 메모를 남기세요..."></textarea>'+
+      '<button class="memo-save-btn" onclick="saveMemo('+tid+')">저장</button>'+
+      '<div class="memo-saved" id="memosaved'+tid+'">✓ 저장됨</div>'+
+    '</div>'+
+    suggestHtml+
+    '<div class="proc-panel hidden" id="pp'+tid+'"><div class="proc-toggle" id="pt'+tid+'" onclick="toggleProc('+tid+')"><div class="proc-toggle-l"><span class="proc-lbl">생성 과정</span><span class="proc-badge" id="pb_cnt'+tid+'">0건</span></div><svg class="chevron" id="chev'+tid+'" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></div><div class="proc-body" id="pbd'+tid+'"><div class="proc-section"><div class="proc-sec-t mask"><span class="sp">STEP 1</span>마스킹</div><table class="proc-tbl"><thead><tr><th>유형</th><th>원본</th><th></th><th>토큰</th></tr></thead><tbody id="pm'+tid+'"></tbody></table></div><div class="proc-section"><div class="proc-sec-t unmask"><span class="sp">STEP 3</span>역마스킹</div><table class="proc-tbl"><thead><tr><th>유형</th><th>토큰</th><th></th><th>복원</th></tr></thead><tbody id="pu'+tid+'"></tbody></table></div></div></div>';
+
   document.getElementById('chatArea').appendChild(c);
-  document.getElementById('rc'+tid).innerHTML=renderMd(answer);
+  document.getElementById('rc'+tid).innerHTML=renderMd(body);
+  // 차트 렌더링 (DOM 삽입 후 실행)
+  if(meta&&meta.chart){
+    setTimeout(function(){renderChart(tid,meta.chart,tm);},50);
+  }
+  scrollToEl(c);  // 새 카드 맨 위로 스크롤
+
+  // 기존 저장된 북마크/메모 복원 (q 기반)
+  var bm=loadBookmarks();
+  var curQ=session.currentQ||q;
+  if(bm[curQ]){
+    document.getElementById('bmbtn'+tid).classList.add('bookmarked');
+    document.getElementById('bmbtn'+tid).title='북마크 해제';
+    if(bm[curQ].memo)document.getElementById('memota'+tid).value=bm[curQ].memo;
+  }
+
   if(tm&&Object.keys(tm).length>0){
     var mr='',ur='';
     Object.keys(tm).forEach(function(tok){
@@ -1005,11 +1490,56 @@ function addReportCard(q,answer,tm,mc,tid){
     document.getElementById('pb_cnt'+tid).textContent=Object.keys(tm).length+'건';
     document.getElementById('pp'+tid).classList.remove('hidden');
   }
-  scrollC();
 }
 function toggleProc(id){
   var b=document.getElementById('pbd'+id),ch=document.getElementById('chev'+id),t=document.getElementById('pt'+id);
   var o=b.classList.toggle('open');ch.classList.toggle('open',o);t.classList.toggle('open',o);
+}
+
+// ════════ 추천 질문 클릭 ════════
+function useSuggest(q){
+  var ta=document.getElementById('chatTa');
+  ta.value=q;autoResize(ta);ta.focus();
+}
+
+// ════════ PDF 내보내기 ════════
+function exportPDF(tid){
+  var card=document.getElementById('rc'+tid);
+  if(!card){alert('내용을 찾을 수 없습니다.');return;}
+  var w=window.open('','_blank');
+  var css='body{font-family:sans-serif;padding:32px;color:#1E293B;max-width:800px;margin:0 auto;font-size:14px;line-height:1.8;}h1{font-size:16px;font-weight:800;background:#0A1628;color:white;padding:10px 16px;border-radius:6px;margin:20px 0 10px;}h2{font-size:13px;font-weight:700;color:#2563EB;border-left:3px solid #2563EB;padding:3px 10px;background:#EFF6FF;margin:14px 0 8px;}table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;}thead{background:#0A1628;}thead th{color:rgba(255,255,255,.7);padding:6px 10px;text-align:left;font-size:11px;}tbody tr:nth-child(even){background:#F8FAFC;}tbody td{padding:5px 10px;border-bottom:1px solid #E2E8F0;}blockquote{border-left:3px solid #2563EB;margin:8px 0;padding:6px 12px;background:#EFF6FF;color:#475569;}strong{font-weight:800;}.header{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid #0A1628;margin-bottom:20px;}.logo{font-size:20px;font-weight:900;}.ts{font-size:11px;color:#94A3B8;}';
+  var now=new Date();
+  var ts=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  var html='<html><head><meta charset="UTF-8"><title>SecureAgent 리포트</title><style>'+css+'</style></head><body>';
+  html+='<div class="header"><div class="logo">SecureAgent 리포트</div><div class="ts">'+ts+'</div></div>';
+  html+=card.innerHTML;
+  html+='</body></html>';
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();},400);
+}
+function exportCSV(tid){
+  var card=document.getElementById('rc'+tid);
+  if(!card){alert('내용을 찾을 수 없습니다.');return;}
+  var tables=card.querySelectorAll('table');
+  if(tables.length===0){alert('내보낼 표 데이터가 없습니다.');return;}
+  var csv='';
+  tables.forEach(function(tbl,ti){
+    if(ti>0)csv+='\n';
+    tbl.querySelectorAll('tr').forEach(function(row){
+      var cells=Array.from(row.querySelectorAll('th,td')).map(function(c){
+        var v=c.textContent.trim().replace(/"/g,'""');
+        return'"'+v+'"';
+      });
+      csv+=cells.join(',')+'\n';
+    });
+  });
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  a.download='SecureAgent_'+tid+'_'+Date.now()+'.csv';
+  a.click();URL.revokeObjectURL(url);
 }
 
 // ════════ 첫 질문 (마스킹 시각화) ════════
@@ -1061,7 +1591,12 @@ async function startNewQ(q){
   pipeA('ps2');
 
   try{
-    var uMsg='질문: '+q+'\n\n데이터:\n'+r.text;
+    // 질문도 마스킹해서 전달 — 원본값이 Claude에게 절대 노출되지 않도록
+    var maskedQ=q;
+    Object.keys(r.tm).forEach(function(tok){
+      maskedQ=maskedQ.split(r.tm[tok].val).join(tok);
+    });
+    var uMsg='질문: '+maskedQ+'\n\n데이터:\n'+r.text;
     var ans=await callAPI([{role:'user',content:uMsg}],SYS);
     session.history.push({role:'user',content:uMsg});
     session.history.push({role:'assistant',content:ans});
@@ -1114,6 +1649,7 @@ async function sendFollowup(q){
       var rc=document.createElement('div');rc.className='report-card';
       rc.innerHTML='<div class="report-hdr"><div class="ai-mark"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">실시간 데이터 필요</div></div></div><div class="report-body"><div class="md-content"><blockquote>실시간 데이터 조회가 필요한 질문입니다.<br>실서비스에서는 브랜치Q를 통해 최신 데이터를 재조회합니다.<br><strong>사유: '+(intent.reason||'최신 데이터 필요')+'</strong></blockquote></div></div>';
       document.getElementById('chatArea').appendChild(rc);
+      scrollToEl(rc);
     }else if(intent.intent==='GENERAL'){
       var ld3=addLoadingInline('답변 생성 중...');
       var generalAns=await callGeneralAPI(q);
@@ -1123,18 +1659,24 @@ async function sendFollowup(q){
       gc.innerHTML='<div class="report-hdr"><div class="ai-mark general-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">일반 답변</div></div><div class="ai-ts">'+ts+'</div></div><div class="report-body"><div class="md-content" id="gc'+tid+'"></div></div>';
       document.getElementById('chatArea').appendChild(gc);
       document.getElementById('gc'+tid).innerHTML=renderMd(generalAns);
+      scrollToEl(gc);
     }else{
       pipeA('ps2');
       var ld2=addLoadingInline('기존 데이터 기반 분석 중...');
-      var msgs=session.history.slice();msgs.push({role:'user',content:q});
+      // 추가 질문도 마스킹해서 전달 — 원본값 노출 방지
+      var maskedQ2=q;
+      Object.keys(session.tm).forEach(function(tok){
+        maskedQ2=maskedQ2.split(session.tm[tok].val).join(tok);
+      });
+      var msgs=session.history.slice();msgs.push({role:'user',content:maskedQ2});
       var ans=await callAPI(msgs,SYS);
+      session.history.push({role:'user',content:maskedQ2});
       session.history.push({role:'user',content:q});session.history.push({role:'assistant',content:ans});
       pipeD('ps2');pipeD('ps3');pipeD('ps4');
       ld2.remove();
       var final=unmask(ans,session.tm);
       addReportCard(q,final,session.tm,{co:0,ac:0,ca:0},tid);
     }
-    scrollC();
     // 추가 질문 후에도 캐시 갱신
     saveCache(session.currentQ, document.getElementById('chatArea').innerHTML, session);
   }catch(e){if(ld.parentNode)ld.remove();addErr(e.message);resetPipe();}
@@ -1177,7 +1719,7 @@ async function sendGeneralDirect(q){
     gc.innerHTML='<div class="report-hdr"><div class="ai-mark general-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><div><div class="ai-name">SecureAgent AI</div><div class="ai-sub">일반 답변</div></div><div class="ai-ts">'+ts+'</div></div><div class="report-body"><div class="md-content" id="gc'+tid+'"></div></div>';
     document.getElementById('chatArea').appendChild(gc);
     document.getElementById('gc'+tid).innerHTML=renderMd(ans);
-    scrollC();
+    scrollToEl(gc);
     // 캐시 저장 (나중에 클릭 시 복원용)
     saveCache(q, document.getElementById('chatArea').innerHTML, session);
     renderQList(document.getElementById('qSrch').value);
@@ -1233,6 +1775,15 @@ function applyTheme(dark){
     document.getElementById('themeTxt').textContent='다크 모드';
   }
   localStorage.setItem('sa_theme', dark?'dark':'light');
+  // 다크/라이트 전환 시 모든 차트 색상 갱신
+  setTimeout(function(){
+    Object.keys(chartInstances).forEach(function(tid){
+      var inst=chartInstances[tid];
+      if(inst&&inst.config&&inst.config._config){
+        inst.destroy();delete chartInstances[tid];
+      }
+    });
+  },50);
 }
 function toggleTheme(){
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
@@ -1254,7 +1805,16 @@ window.addEventListener('load',function(){
     localStorage.setItem(HISTORY_KEY,JSON.stringify(synced));
   }
 
-  renderQList('');renderAnalysisChips();
+  // 기존 숫자 키 북마크 데이터 정리 (이전 버전 호환)
+  try{
+    var oldBm=JSON.parse(localStorage.getItem(BM_KEY)||'{}');
+    var cleaned={};
+    Object.keys(oldBm).forEach(function(k){
+      if(isNaN(k))cleaned[k]=oldBm[k]; // 문자열 키만 유지
+    });
+    localStorage.setItem(BM_KEY,JSON.stringify(cleaned));
+  }catch(e){}
+  renderQList('');renderBmList();renderAnalysisChips();
   if(!getKey())openKeyModal();
 });
 document.addEventListener('keydown',function(e){
